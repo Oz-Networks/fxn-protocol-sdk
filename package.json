@@ -1,0 +1,44 @@
+{
+  "name": "oz-protocol-sdk",
+  "version": "1.0.0",
+  "description": "Utility functions to access Oz incentivized peer-to-peer messaging protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "npx hardhat test",
+    "build": "tsc"
+  },
+  "engines": {
+    "node": ">=22.11.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Oz-Networks/oz-protocol-sdk.git"
+  },
+  "keywords": [
+    "oz",
+    "p2p",
+    "blockchain",
+    "messaging"
+  ],
+  "author": "Oz Networks",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Oz-Networks/oz-protocol-sdk/issues"
+  },
+  "homepage": "https://github.com/Oz-Networks/oz-protocol-sdk#readme",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@types/chai": "^5.0.1",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "^22.9.0",
+    "chai": "^5.1.2",
+    "hardhat": "^2.22.15",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "axios": "^1.7.7"
+  }
+}
