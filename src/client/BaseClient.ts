@@ -1,12 +1,11 @@
 // BaseClient.ts
-import { ethers } from "ethers";
-import { JsonRpcProvider } from "@ethersproject/providers";
+import {ethers, JsonRpcProvider} from "ethers";
 
 export class BaseClient {
     protected provider: JsonRpcProvider;
 
     constructor(rpcUrl: string) {
-        this.provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+        this.provider = new ethers.JsonRpcProvider(rpcUrl);
     }
 
     protected async getSignerFromPrivateKey(privateKey: string): Promise<ethers.Wallet> {
