@@ -68,8 +68,8 @@ export class SubscriptionManagerClient extends BaseClient {
         return await this.contract!.collectorFee();
     }
 
-    async getSubscription(dataProvider: string, subscriber: string): Promise<{recipient: string, endTime: number}> {
+    async getSubscriptions(dataProvider: string, subscriber: string): Promise<{recipient: string, endTime: number}> {
         this.ensureInitialized();
-        return await this.contract!.subscription(dataProvider, subscriber);
+        return await this.contract!.subscriptions(dataProvider, subscriber);
     }
 }
