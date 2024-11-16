@@ -67,4 +67,9 @@ export class SubscriptionManagerClient extends BaseClient {
         this.ensureInitialized();
         return await this.contract!.collectorFee();
     }
+
+    async getSubscription(dataProvider: string, subscriber: string): Promise<{recipient: string, endTime: number, value: ethers.BigNumber}> {
+        this.ensureInitialized();
+        return await this.contract!.getSubscription(dataProvider, subscriber);
+    }
 }
