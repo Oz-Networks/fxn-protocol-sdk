@@ -238,9 +238,14 @@ export class FxnSolanaAdapter {
     // adapters/solana-adapter.ts
     async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
         try {
-            const subscriptionAccounts = await this.program.account.subscription.all();
+            const subscriptionAccounts = await this.program.account.subscription.all([{
+                memcmp: {
+                    offset: 8, // Skip the account discriminator
+                    bytes: userPublicKey.toBase58()
+                }
+            }]);
 
-            console.log('Found subscription accounts:', subscriptionAccounts.length);
+            console.log('Found subscription accounts for user:', subscriptionAccounts.length);
 
             const userSubscriptions = subscriptionAccounts
                 .filter(account => {
@@ -250,15 +255,15 @@ export class FxnSolanaAdapter {
                         recipient: account.account.recipient
                     });
 
+                    // Still filter by active subscriptions
                     return account.account.endTime.gt(new BN(Math.floor(Date.now() / 1000)));
                 })
                 .map(account => ({
                     subscription: account.account,
-                    subscriptionPDA: account.publicKey, // Include the PDA
                     status: this.getSubscriptionStatus(account.account.endTime),
                 }));
 
-            console.log('Filtered user subscriptions:', userSubscriptions.length);
+            console.log('Filtered active user subscriptions:', userSubscriptions.length);
 
             return userSubscriptions;
         } catch (error) {
