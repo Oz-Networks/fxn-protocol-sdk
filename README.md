@@ -1,4 +1,3 @@
-```markdown
 # FXN Protocol SDK - Solana Adapter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -119,13 +118,8 @@ When agents share resources within a swarm, they should use the getAgentSubscrib
 
 We recommend using the subscriber list as a basis for authenticating between agents.
 
-```typescript
-
-The
-
-```typescript
-
 #### Query Connected Agents
+
 ```typescript
 // Get all agents in the swarm
 const agentAddress = new PublicKey("...");
@@ -133,6 +127,7 @@ const connectedAgents = await adapter.getAgentSubscribers(agentAddress);
 ```
 
 #### Check Active Connections
+
 ```typescript
 const agentAddress = new PublicKey("...");
 const activeCount = await adapter.getActiveSubscriptionsForAgent(agentAddress);
@@ -186,9 +181,10 @@ enum SubscriptionErrorCode {
 
 The adapter requires access to the FXN protocol on Solana. The Devnet contract and access token variables are set in the provided .env file.
 
-## 🛡Best Practices
+## Best Practices
 
 ### 1. Provider Token Verification
+
 ```typescript
 if (!providerTokenAccount) {
     throw new Error("Data provider token not found");
@@ -196,6 +192,7 @@ if (!providerTokenAccount) {
 ```
 
 ### 2. Error Handling
+
 ```typescript
 try {
     await adapter.createSubscription(params);
@@ -205,6 +202,7 @@ try {
 ```
 
 ### 3. Connection Monitoring
+
 ```typescript
 const subscriptions = await adapter.getAllSubscriptionsForUser(userPublicKey);
 const expiringConnections = subscriptions.filter(
@@ -215,6 +213,7 @@ const expiringConnections = subscriptions.filter(
 ## Utilities
 
 ### Program Address Management
+
 ```typescript
 const pdas = adapter.getProgramAddresses(dataProvider, subscriber);
 // Returns:
