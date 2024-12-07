@@ -2,8 +2,10 @@
 
 import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
 import {
+    Connection,
     PublicKey,
     SystemProgram,
+    LAMPORTS_PER_SOL,
     TransactionSignature, Signer
 } from '@solana/web3.js';
 import {
@@ -36,6 +38,16 @@ export interface SubscriptionState {
     recipient: string;
 }
 
+interface SubscriberDetails {
+    subscriber: PublicKey;
+    subscriptionPDA: PublicKey;
+    subscription: {
+        endTime: BN;
+        recipient: string;
+    };
+    status: 'active' | 'expired' | 'expiring_soon';
+}
+
 // Properly typed account interfaces
 type QualityInfoAccount = IdlAccounts<SubscriptionManager>['qualityInfo'];
 type StateAccount = IdlAccounts<SubscriptionManager>['state'];
@@ -66,12 +78,12 @@ export interface SubscriptionStatus {
     subscription: SubscriptionAccount;
 }
 
-export class FxnSolanaAdapter {
+export class SolanaAdapter {
     program: Program<SubscriptionManager>;
     provider: AnchorProvider;
 
     constructor(provider: AnchorProvider) {
-        if (!process.env.DEVNET_SUBSCRIPTION_MANAGER_ADDRESS) {
+        if (!process.env.NEXT_PUBLIC_SUBSCRIPTION_MANAGER_ADDRESS) {
             throw new Error('Program ID not found in environment variables');
         }
 
@@ -89,18 +101,25 @@ export class FxnSolanaAdapter {
         }
 
         try {
+            console.log('Creating subscription:', {
+                subscriber: this.provider.wallet.publicKey.toString(),
+                dataProvider: params.dataProvider.toString(),
+                recipient: params.recipient,
+                durationInDays: params.durationInDays,
+                nftTokenAccount: params.nftTokenAccount.toString()
+            });
+
             const subscriber = this.provider.wallet.publicKey;
             const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
 
-            // First, get the state account to get the correct owner
-            const state = await this.program.account.state.fetch(pdas.statePDA);
-
-            console.log('Debug info:', {
-                stateOwner: state.owner.toString(),
-                subscriber: subscriber.toString(),
-                dataProvider: params.dataProvider.toString(),
-                nftTokenAccount: params.nftTokenAccount.toString()
+            console.log('PDAs for subscription:', {
+                statePDA: pdas.statePDA.toString(),
+                subscriptionPDA: pdas.subscriptionPDA.toString(),
+                subscribersListPDA: pdas.subscribersListPDA.toString()
             });
+
+            // Get the state account to get the correct owner
+            const state = await this.program.account.state.fetch(pdas.statePDA);
 
             const txHash = await this.program.methods
                 .subscribe(
@@ -113,12 +132,17 @@ export class FxnSolanaAdapter {
                     dataProvider: params.dataProvider,
                     subscription: pdas.subscriptionPDA,
                     subscribersList: pdas.subscribersListPDA,
-                    owner: state.owner, // Use the owner from the state account
+                    owner: state.owner,
                     systemProgram: SystemProgram.programId,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     nftTokenAccount: params.nftTokenAccount,
                 } as any)
                 .rpc();
+
+            console.log('Subscription created:', {
+                txHash,
+                subscriptionPDA: pdas.subscriptionPDA.toString()
+            });
 
             return txHash;
         } catch (error) {
@@ -141,7 +165,7 @@ export class FxnSolanaAdapter {
     }
 
     async getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey> {
-        const nftMint = new PublicKey(process.env.DEVNET_NFT_TOKEN_ADDRESS!);
+        const nftMint = new PublicKey(process.env.NEXT_PUBLIC_NFT_TOKEN_ADDRESS!);
 
         try {
             const tokenAccount = await getAssociatedTokenAddress(
@@ -235,43 +259,177 @@ export class FxnSolanaAdapter {
         }
     }
 
-    // adapters/solana-adapter.ts
-    async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
+    async getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]> {
         try {
-            const subscriptionAccounts = await this.program.account.subscription.all([{
-                memcmp: {
-                    offset: 8, // Skip the account discriminator
-                    bytes: userPublicKey.toBase58()
-                }
-            }]);
+            console.log('Getting subscriptions for provider:', providerPublicKey.toString());
 
-            console.log('Found subscription accounts for user:', subscriptionAccounts.length);
+            // Get the subscribers list PDA
+            const [subscribersListPDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("subscribers"), providerPublicKey.toBuffer()],
+                this.program.programId
+            );
 
-            const userSubscriptions = subscriptionAccounts
-                .filter(account => {
-                    console.log('Subscription account:', {
-                        pubkey: account.publicKey.toString(),
-                        endTime: account.account.endTime.toString(),
-                        recipient: account.account.recipient
-                    });
+            // Get the list of subscribers
+            const subscribersList = await this.program.account.subscribersList.fetch(
+                subscribersListPDA
+            );
 
-                    // Still filter by active subscriptions
-                    return account.account.endTime.gt(new BN(Math.floor(Date.now() / 1000)));
+            console.log('Found subscribers:', {
+                count: subscribersList.subscribers.length,
+                subscribers: subscribersList.subscribers.map(s => s.toString())
+            });
+
+            // Get subscription details for each subscriber
+            const subscriptions = await Promise.all(
+                subscribersList.subscribers.map(async (subscriber) => {
+                    // Calculate subscription PDA for this subscriber
+                    const [subscriptionPDA] = PublicKey.findProgramAddressSync(
+                        [
+                            Buffer.from("subscription"),
+                            subscriber.toBuffer(),
+                            providerPublicKey.toBuffer()
+                        ],
+                        this.program.programId
+                    );
+
+                    try {
+                        const subscription = await this.program.account.subscription.fetch(
+                            subscriptionPDA
+                        );
+
+                        console.log('Found subscription:', {
+                            subscriber: subscriber.toString(),
+                            pda: subscriptionPDA.toString(),
+                            endTime: subscription.endTime.toString(),
+                            recipient: subscription.recipient
+                        });
+
+                        return {
+                            subscriber,
+                            subscriptionPDA,
+                            subscription,
+                            status: this.getSubscriptionStatus(subscription.endTime)
+                        };
+                    } catch (error) {
+                        console.log('No subscription found for subscriber:', subscriber.toString());
+                        return null;
+                    }
                 })
-                .map(account => ({
-                    subscription: account.account,
-                    status: this.getSubscriptionStatus(account.account.endTime),
-                }));
+            );
 
-            console.log('Filtered active user subscriptions:', userSubscriptions.length);
+            // Filter out null values and sort by active status
+            const validSubscriptions = subscriptions
+                .filter((sub): sub is SubscriberDetails =>
+                    sub !== null &&
+                    sub.subscription.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
+                )
+                .sort((a, b) => b.subscription.endTime.sub(a.subscription.endTime).toNumber());
 
-            return userSubscriptions;
+            console.log('Active subscriptions found:', {
+                total: validSubscriptions.length,
+                subscriptions: validSubscriptions.map(sub => ({
+                    subscriber: sub.subscriber.toString(),
+                    pda: sub.subscriptionPDA.toString(),
+                    endTime: sub.subscription.endTime.toString(),
+                    recipient: sub.subscription.recipient,
+                    status: sub.status
+                }))
+            });
+
+            return validSubscriptions;
         } catch (error) {
-            console.error('Error fetching subscriptions:', error);
+            console.error('Error getting provider subscriptions:', error);
             throw this.handleError(error);
         }
     }
 
+    async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
+        try {
+            console.log('Getting subscriptions for user:', userPublicKey.toString());
+
+            // Get all subscription accounts
+            const subscriptionAccounts = await this.program.account.subscription.all();
+            console.log('Total subscription accounts:', subscriptionAccounts.length);
+
+            // Get all subscriber lists
+            const subscriberLists = await this.program.account.subscribersList.all();
+            console.log('Total subscriber lists:', subscriberLists.length);
+
+            const userSubscriptions = [];
+
+            // For each subscriber list
+            for (const list of subscriberLists) {
+                // Extract data provider from the subscriber list PDA
+                // The PDA is created with [b"subscribers", data_provider.key().as_ref()]
+                const [listPDA, _] = PublicKey.findProgramAddressSync(
+                    [Buffer.from("subscribers"), list.publicKey.toBuffer()],
+                    this.program.programId
+                );
+
+                // If this matches our list's PDA, we found a data provider
+                if (listPDA.equals(list.publicKey)) {
+                    const dataProvider = list.publicKey;
+
+                    // Calculate what our subscription PDA would be with this provider
+                    const [expectedSubPDA] = PublicKey.findProgramAddressSync(
+                        [
+                            Buffer.from("subscription"),
+                            userPublicKey.toBuffer(),
+                            dataProvider.toBuffer()
+                        ],
+                        this.program.programId
+                    );
+
+                    console.log('Checking for subscription:', {
+                        provider: dataProvider.toString(),
+                        expectedPDA: expectedSubPDA.toString()
+                    });
+
+                    // Look for this subscription in our accounts
+                    const subscription = subscriptionAccounts.find(acc =>
+                        acc.publicKey.equals(expectedSubPDA)
+                    );
+
+                    if (subscription) {
+                        console.log('Found subscription:', {
+                            provider: dataProvider.toString(),
+                            pda: subscription.publicKey.toString(),
+                            endTime: subscription.account.endTime.toString(),
+                            recipient: subscription.account.recipient
+                        });
+
+                        userSubscriptions.push({
+                            subscription: subscription.account,
+                            subscriptionPDA: subscription.publicKey,
+                            dataProvider,
+                            status: this.getSubscriptionStatus(subscription.account.endTime)
+                        });
+                    }
+                }
+            }
+
+            // Filter to only active subscriptions
+            const activeSubscriptions = userSubscriptions.filter(sub =>
+                sub.subscription.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
+            );
+
+            console.log('Active subscriptions found:', {
+                total: activeSubscriptions.length,
+                subscriptions: activeSubscriptions.map(sub => ({
+                    provider: sub.dataProvider.toString(),
+                    pda: sub.subscriptionPDA.toString(),
+                    endTime: sub.subscription.endTime.toString(),
+                    recipient: sub.subscription.recipient,
+                    status: sub.status
+                }))
+            });
+
+            return activeSubscriptions;
+        } catch (error) {
+            console.error('Error in getAllSubscriptionsForUser:', error);
+            throw this.handleError(error);
+        }
+    }
     async renewSubscription(params: RenewParams): Promise<TransactionSignature> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
