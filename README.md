@@ -17,19 +17,20 @@ An SDK to access FXN Protocol, enabling secure peer-to-peer communication and re
 
 ## Installation
 
+Install the SDK from the public GitHub repository:
 ```bash
-npm install @fxn-protocol/solana-adapter
+npm install https://github.com/Oz-Networks/fxn-protocol-sdk#main
 ```
 
 ## Quick Start
 
 ```typescript
-import { FxnSolanaAdapter } from '@fxn-protocol/solana-adapter';
+import { SolanaAdapater } from '@fxn-protocol/solana-adapter';
 import { AnchorProvider } from '@coral-xyz/anchor';
 
 // Initialize with an AnchorProvider
 const provider = new AnchorProvider(/* your connection and wallet config */);
-const adapter = new FxnSolanaAdapter(provider);
+const adapter = new SolanaAdapater(provider);
 ```
 
 ## Core Functionality
