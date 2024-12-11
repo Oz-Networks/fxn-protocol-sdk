@@ -6,7 +6,8 @@ export {
     type CancelParams,
     type SubscriptionState,
     type SubscriptionStatus,
-    SubscriptionErrorCode
+    SubscriptionErrorCode,
+    SubscriberDetails
 } from './client/fxn-solana-adapter';
 
 // Export types
