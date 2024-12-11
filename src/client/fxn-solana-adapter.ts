@@ -38,7 +38,7 @@ export interface SubscriptionState {
     recipient: string;
 }
 
-interface SubscriberDetails {
+export interface SubscriberDetails {
     subscriber: PublicKey;
     subscriptionPDA: PublicKey;
     subscription: {

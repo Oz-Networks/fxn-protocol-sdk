@@ -17,7 +17,7 @@ export interface SubscriptionState {
     endTime: BN;
     recipient: string;
 }
-interface SubscriberDetails {
+export interface SubscriberDetails {
     subscriber: PublicKey;
     subscriptionPDA: PublicKey;
     subscription: {
