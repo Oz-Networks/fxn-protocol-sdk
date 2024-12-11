@@ -1,0 +1,1106 @@
+{
+    "address": "AnPhQYFcJEPBG2JTrvaNne85rXufC1Q97bu29YaWvKDs",
+    "metadata": {
+        "name": "subscription_manager",
+        "version": "0.1.0",
+        "spec": "0.1.0",
+        "description": "Created with Anchor"
+    },
+    "instructions": [
+        {
+            "name": "cancel_subscription",
+            "discriminator": [
+                60,
+                139,
+                189,
+                242,
+                191,
+                208,
+                143,
+                18
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider"
+                },
+                {
+                    "name": "subscription",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "quality_info",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    113,
+                                    117,
+                                    97,
+                                    108,
+                                    105,
+                                    116,
+                                    121
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "token_program",
+                    "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                },
+                {
+                    "name": "nft_token_account"
+                }
+            ],
+            "args": [
+                {
+                    "name": "quality",
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "end_subscription",
+            "discriminator": [
+                115,
+                160,
+                25,
+                55,
+                34,
+                94,
+                144,
+                150
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider"
+                },
+                {
+                    "name": "subscription",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "quality_info",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    113,
+                                    117,
+                                    97,
+                                    108,
+                                    105,
+                                    116,
+                                    121
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": [
+                {
+                    "name": "quality",
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "get_subscribers",
+            "discriminator": [
+                232,
+                209,
+                197,
+                223,
+                218,
+                152,
+                141,
+                210
+            ],
+            "accounts": [
+                {
+                    "name": "data_provider"
+                },
+                {
+                    "name": "subscribers_list",
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": [],
+            "returns": {
+                "vec": "pubkey"
+            }
+        },
+        {
+            "name": "initialize",
+            "discriminator": [
+                175,
+                175,
+                109,
+                31,
+                13,
+                152,
+                155,
+                237
+            ],
+            "accounts": [
+                {
+                    "name": "state",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    116,
+                                    111,
+                                    114,
+                                    97,
+                                    103,
+                                    101
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "owner",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "nft_program"
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "initialize_quality_info",
+            "discriminator": [
+                154,
+                244,
+                109,
+                54,
+                154,
+                111,
+                42,
+                23
+            ],
+            "accounts": [
+                {
+                    "name": "quality_info",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    113,
+                                    117,
+                                    97,
+                                    108,
+                                    105,
+                                    116,
+                                    121
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "data_provider"
+                },
+                {
+                    "name": "payer",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "renew_subscription",
+            "discriminator": [
+                45,
+                75,
+                154,
+                194,
+                160,
+                10,
+                111,
+                183
+            ],
+            "accounts": [
+                {
+                    "name": "state",
+                    "writable": true
+                },
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true
+                },
+                {
+                    "name": "subscription",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "quality_info",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    113,
+                                    117,
+                                    97,
+                                    108,
+                                    105,
+                                    116,
+                                    121
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "owner",
+                    "writable": true
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                },
+                {
+                    "name": "token_program",
+                    "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                },
+                {
+                    "name": "nft_token_account"
+                }
+            ],
+            "args": [
+                {
+                    "name": "new_recipient",
+                    "type": "string"
+                },
+                {
+                    "name": "new_end_time",
+                    "type": "i64"
+                },
+                {
+                    "name": "quality",
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "set_collector_fee",
+            "discriminator": [
+                62,
+                129,
+                230,
+                50,
+                150,
+                38,
+                238,
+                92
+            ],
+            "accounts": [
+                {
+                    "name": "state",
+                    "writable": true
+                },
+                {
+                    "name": "owner",
+                    "signer": true
+                }
+            ],
+            "args": [
+                {
+                    "name": "new_fee",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "set_fee_per_day",
+            "discriminator": [
+                141,
+                138,
+                186,
+                148,
+                166,
+                202,
+                210,
+                116
+            ],
+            "accounts": [
+                {
+                    "name": "state",
+                    "writable": true
+                },
+                {
+                    "name": "owner",
+                    "signer": true
+                }
+            ],
+            "args": [
+                {
+                    "name": "new_fee",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "store_data_quality",
+            "discriminator": [
+                109,
+                123,
+                36,
+                195,
+                189,
+                91,
+                208,
+                129
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider"
+                },
+                {
+                    "name": "quality_info",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    113,
+                                    117,
+                                    97,
+                                    108,
+                                    105,
+                                    116,
+                                    121
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": [
+                {
+                    "name": "quality",
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "subscribe",
+            "discriminator": [
+                254,
+                28,
+                191,
+                138,
+                156,
+                179,
+                183,
+                53
+            ],
+            "accounts": [
+                {
+                    "name": "state",
+                    "writable": true
+                },
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true
+                },
+                {
+                    "name": "subscription",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "subscribers_list",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "owner",
+                    "writable": true
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                },
+                {
+                    "name": "token_program",
+                    "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                },
+                {
+                    "name": "nft_token_account"
+                }
+            ],
+            "args": [
+                {
+                    "name": "recipient",
+                    "type": "string"
+                },
+                {
+                    "name": "end_time",
+                    "type": "i64"
+                }
+            ]
+        }
+    ],
+    "accounts": [
+        {
+            "name": "QualityInfo",
+            "discriminator": [
+                59,
+                207,
+                119,
+                53,
+                151,
+                101,
+                159,
+                114
+            ]
+        },
+        {
+            "name": "State",
+            "discriminator": [
+                216,
+                146,
+                107,
+                94,
+                104,
+                75,
+                182,
+                177
+            ]
+        },
+        {
+            "name": "SubscribersList",
+            "discriminator": [
+                85,
+                14,
+                165,
+                202,
+                229,
+                174,
+                22,
+                69
+            ]
+        },
+        {
+            "name": "Subscription",
+            "discriminator": [
+                64,
+                7,
+                26,
+                135,
+                102,
+                132,
+                98,
+                33
+            ]
+        }
+    ],
+    "events": [
+        {
+            "name": "CollectorFeeUpdatedEvent",
+            "discriminator": [
+                111,
+                103,
+                158,
+                122,
+                19,
+                32,
+                13,
+                99
+            ]
+        },
+        {
+            "name": "FeePerDayUpdatedEvent",
+            "discriminator": [
+                219,
+                16,
+                119,
+                65,
+                189,
+                118,
+                175,
+                120
+            ]
+        },
+        {
+            "name": "QualityProvidedEvent",
+            "discriminator": [
+                65,
+                215,
+                185,
+                198,
+                187,
+                33,
+                124,
+                150
+            ]
+        },
+        {
+            "name": "SubscriptionCancelledEvent",
+            "discriminator": [
+                10,
+                87,
+                228,
+                73,
+                76,
+                115,
+                135,
+                170
+            ]
+        },
+        {
+            "name": "SubscriptionCreatedEvent",
+            "discriminator": [
+                247,
+                246,
+                115,
+                176,
+                253,
+                84,
+                244,
+                155
+            ]
+        },
+        {
+            "name": "SubscriptionEndedEvent",
+            "discriminator": [
+                65,
+                132,
+                208,
+                62,
+                46,
+                117,
+                222,
+                111
+            ]
+        },
+        {
+            "name": "SubscriptionRenewedEvent",
+            "discriminator": [
+                77,
+                2,
+                48,
+                127,
+                173,
+                252,
+                49,
+                6
+            ]
+        }
+    ],
+    "errors": [
+        {
+            "code": 6000,
+            "name": "PeriodTooShort",
+            "msg": "Subscription period is too short"
+        },
+        {
+            "code": 6001,
+            "name": "AlreadySubscribed",
+            "msg": "Already subscribed"
+        },
+        {
+            "code": 6002,
+            "name": "InsufficientPayment",
+            "msg": "Insufficient payment"
+        },
+        {
+            "code": 6003,
+            "name": "InvalidNFTHolder",
+            "msg": "Invalid NFT holder"
+        },
+        {
+            "code": 6004,
+            "name": "SubscriptionNotFound",
+            "msg": "Subscription not found"
+        },
+        {
+            "code": 6005,
+            "name": "QualityOutOfRange",
+            "msg": "Quality out of range"
+        },
+        {
+            "code": 6006,
+            "name": "SubscriptionAlreadyEnded",
+            "msg": "Subscription has already ended"
+        },
+        {
+            "code": 6007,
+            "name": "ActiveSubscription",
+            "msg": "Subscription is still active"
+        },
+        {
+            "code": 6008,
+            "name": "NotOwner",
+            "msg": "Not the contract owner"
+        }
+    ],
+    "types": [
+        {
+            "name": "CollectorFeeUpdatedEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "new_collector_fee",
+                        "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "FeePerDayUpdatedEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "new_fee_per_day",
+                        "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "QualityInfo",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "subscriber",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "quality",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "current_index",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "qualities",
+                        "type": {
+                            "vec": {
+                                "defined": {
+                                    "name": "QualityRecord"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "QualityProvidedEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "data_provider",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "subscriber",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "quality",
+                        "type": "u8"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "QualityRecord",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "provider",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "quality",
+                        "type": "u8"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "State",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "owner",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "nft_program_id",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "fee_per_day",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "collector_fee",
+                        "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "SubscribersList",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "subscribers",
+                        "type": {
+                            "vec": "pubkey"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Subscription",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "end_time",
+                        "type": "i64"
+                    },
+                    {
+                        "name": "recipient",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "SubscriptionCancelledEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "data_provider",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "subscriber",
+                        "type": "pubkey"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "SubscriptionCreatedEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "data_provider",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "subscriber",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "recipient",
+                        "type": "string"
+                    },
+                    {
+                        "name": "end_time",
+                        "type": "i64"
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "i64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "SubscriptionEndedEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "data_provider",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "subscriber",
+                        "type": "pubkey"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "SubscriptionRenewedEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "data_provider",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "subscriber",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "new_recipient",
+                        "type": "string"
+                    },
+                    {
+                        "name": "new_end_time",
+                        "type": "i64"
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "i64"
+                    }
+                ]
+            }
+        }
+    ]
+}
