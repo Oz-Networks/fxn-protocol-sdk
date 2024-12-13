@@ -15,9 +15,8 @@ import {
     mintTo
 } from '@solana/spl-token';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import type { SubscriptionManager } from '@/types/subscription_manager';
-import IDL from '@/types/idl/subscription_manager.json';
-
+import type { SubscriptionManager } from '../types/subscription_manager';
+import IDL from '../types/idl/subscription_manager.json';
 // Enhanced type definitions
 export interface RenewParams {
     dataProvider: PublicKey;

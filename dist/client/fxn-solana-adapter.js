@@ -18,7 +18,7 @@ const anchor_1 = require("@coral-xyz/anchor");
 const web3_js_1 = require("@solana/web3.js");
 const spl_token_1 = require("@solana/spl-token");
 const spl_token_2 = require("@solana/spl-token");
-const subscription_manager_json_1 = __importDefault(require("@/types/idl/subscription_manager.json"));
+const subscription_manager_json_1 = __importDefault(require("../types/idl/subscription_manager.json"));
 // Enhanced error types
 var SubscriptionErrorCode;
 (function (SubscriptionErrorCode) {

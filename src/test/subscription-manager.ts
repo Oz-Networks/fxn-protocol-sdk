@@ -15,7 +15,7 @@ import {
 } from "@solana/spl-token";
 import { assert } from "chai";
 import { describe, it, before } from "mocha";
-import {SubscriptionManager} from "@/types/subscription_manager";
+import {SubscriptionManager} from "../types/subscription_manager";
 
 describe("Subscription Manager Tests", () => {
   // Set up anchor provider and program

@@ -1,6 +1,6 @@
 import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
-import type { SubscriptionManager } from '@/types/subscription_manager';
+import type { SubscriptionManager } from '../types/subscription_manager';
 export interface RenewParams {
     dataProvider: PublicKey;
     newRecipient: string;
