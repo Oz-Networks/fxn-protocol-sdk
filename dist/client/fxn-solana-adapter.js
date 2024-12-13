@@ -34,7 +34,7 @@ var SubscriptionErrorCode;
 })(SubscriptionErrorCode || (exports.SubscriptionErrorCode = SubscriptionErrorCode = {}));
 class SolanaAdapter {
     constructor(provider) {
-        if (!process.env.NEXT_PUBLIC_SUBSCRIPTION_MANAGER_ADDRESS) {
+        if (!process.env.DEVNET_SUBSCRIPTION_MANAGER_ADDRESS) {
             throw new Error('Program ID not found in environment variables');
         }
         this.provider = provider;
@@ -103,7 +103,7 @@ class SolanaAdapter {
     }
     getProviderTokenAccount(providerAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const nftMint = new web3_js_1.PublicKey(process.env.NEXT_PUBLIC_NFT_TOKEN_ADDRESS);
+            const nftMint = new web3_js_1.PublicKey(process.env.DEVNET_NFT_TOKEN_ADDRESS);
             try {
                 const tokenAccount = yield (0, spl_token_1.getAssociatedTokenAddress)(nftMint, providerAddress, false);
                 const tokenAccountInfo = yield this.provider.connection.getAccountInfo(tokenAccount);

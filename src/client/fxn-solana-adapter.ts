@@ -82,7 +82,7 @@ export class SolanaAdapter {
     provider: AnchorProvider;
 
     constructor(provider: AnchorProvider) {
-        if (!process.env.NEXT_PUBLIC_SUBSCRIPTION_MANAGER_ADDRESS) {
+        if (!process.env.DEVNET_SUBSCRIPTION_MANAGER_ADDRESS) {
             throw new Error('Program ID not found in environment variables');
         }
 
@@ -164,7 +164,7 @@ export class SolanaAdapter {
     }
 
     async getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey> {
-        const nftMint = new PublicKey(process.env.NEXT_PUBLIC_NFT_TOKEN_ADDRESS!);
+        const nftMint = new PublicKey(process.env.DEVNET_NFT_TOKEN_ADDRESS!);
 
         try {
             const tokenAccount = await getAssociatedTokenAddress(
