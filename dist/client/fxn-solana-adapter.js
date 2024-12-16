@@ -19,6 +19,7 @@ const web3_js_1 = require("@solana/web3.js");
 const spl_token_1 = require("@solana/spl-token");
 const spl_token_2 = require("@solana/spl-token");
 const subscription_manager_json_1 = __importDefault(require("../types/idl/subscription_manager.json"));
+const config_1 = require("../config");
 // Enhanced error types
 var SubscriptionErrorCode;
 (function (SubscriptionErrorCode) {
@@ -34,7 +35,7 @@ var SubscriptionErrorCode;
 })(SubscriptionErrorCode || (exports.SubscriptionErrorCode = SubscriptionErrorCode = {}));
 class SolanaAdapter {
     constructor(provider) {
-        if (!process.env.DEVNET_SUBSCRIPTION_MANAGER_ADDRESS) {
+        if (!config_1.config.subscriptionManagerAddress) {
             throw new Error('Program ID not found in environment variables');
         }
         this.provider = provider;
@@ -103,7 +104,7 @@ class SolanaAdapter {
     }
     getProviderTokenAccount(providerAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const nftMint = new web3_js_1.PublicKey(process.env.DEVNET_NFT_TOKEN_ADDRESS);
+            const nftMint = new web3_js_1.PublicKey(config_1.config.nftTokenAddress);
             try {
                 const tokenAccount = yield (0, spl_token_1.getAssociatedTokenAddress)(nftMint, providerAddress, false);
                 const tokenAccountInfo = yield this.provider.connection.getAccountInfo(tokenAccount);

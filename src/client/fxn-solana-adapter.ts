@@ -17,6 +17,8 @@ import {
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import type { SubscriptionManager } from '../types/subscription_manager';
 import IDL from '../types/idl/subscription_manager.json';
+import {config} from "../config";
+
 // Enhanced type definitions
 export interface RenewParams {
     dataProvider: PublicKey;
@@ -82,7 +84,7 @@ export class SolanaAdapter {
     provider: AnchorProvider;
 
     constructor(provider: AnchorProvider) {
-        if (!process.env.DEVNET_SUBSCRIPTION_MANAGER_ADDRESS) {
+        if (!config.subscriptionManagerAddress) {
             throw new Error('Program ID not found in environment variables');
         }
 
@@ -164,7 +166,7 @@ export class SolanaAdapter {
     }
 
     async getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey> {
-        const nftMint = new PublicKey(process.env.DEVNET_NFT_TOKEN_ADDRESS!);
+        const nftMint = new PublicKey(config.nftTokenAddress!);
 
         try {
             const tokenAccount = await getAssociatedTokenAddress(
