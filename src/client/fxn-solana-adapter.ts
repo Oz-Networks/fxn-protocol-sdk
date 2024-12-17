@@ -114,7 +114,7 @@ export class SolanaAdapter {
  
 
             const txHash = await this.program.methods
-                .setDataProviderFee(params.fee)
+                .setDataProviderFee(new BN(params.fee))
                 .accounts({
                     dataProviderFee: dataProviderFeePDA,
                     dataProvider: dataProvider,
