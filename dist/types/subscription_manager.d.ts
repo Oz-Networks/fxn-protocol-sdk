@@ -283,6 +283,9 @@ export type SubscriptionManager = {
                     "name": "nftProgram";
                 },
                 {
+                    "name": "paymentSplToken";
+                },
+                {
                     "name": "systemProgram";
                     "address": "11111111111111111111111111111111";
                 }
@@ -485,6 +488,56 @@ export type SubscriptionManager = {
             ];
         },
         {
+            "name": "setDataProviderFee";
+            "discriminator": [
+                211,
+                248,
+                5,
+                80,
+                147,
+                98,
+                135,
+                148
+            ];
+            "accounts": [
+                {
+                    "name": "dataProviderFee";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    102,
+                                    101,
+                                    101
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [
+                {
+                    "name": "fee";
+                    "type": "u64";
+                }
+            ];
+        },
+        {
             "name": "setFeePerDay";
             "discriminator": [
                 141,
@@ -658,6 +711,18 @@ export type SubscriptionManager = {
                     "writable": true;
                 },
                 {
+                    "name": "dataProviderPaymentAta";
+                    "writable": true;
+                },
+                {
+                    "name": "subscriberPaymentAta";
+                    "writable": true;
+                },
+                {
+                    "name": "ownerPaymentAta";
+                    "writable": true;
+                },
+                {
                     "name": "systemProgram";
                     "address": "11111111111111111111111111111111";
                 },
@@ -667,6 +732,9 @@ export type SubscriptionManager = {
                 },
                 {
                     "name": "nftTokenAccount";
+                },
+                {
+                    "name": "dpFeeAccount";
                 }
             ];
             "args": [
@@ -682,6 +750,19 @@ export type SubscriptionManager = {
         }
     ];
     "accounts": [
+        {
+            "name": "dataProviderFee";
+            "discriminator": [
+                150,
+                246,
+                242,
+                181,
+                157,
+                243,
+                172,
+                176
+            ];
+        },
         {
             "name": "qualityInfo";
             "discriminator": [
@@ -846,31 +927,36 @@ export type SubscriptionManager = {
         },
         {
             "code": 6003;
+            "name": "invalidTokenAccount";
+            "msg": "Invalid Token Account";
+        },
+        {
+            "code": 6004;
             "name": "invalidNftHolder";
             "msg": "Invalid NFT holder";
         },
         {
-            "code": 6004;
+            "code": 6005;
             "name": "subscriptionNotFound";
             "msg": "Subscription not found";
         },
         {
-            "code": 6005;
+            "code": 6006;
             "name": "qualityOutOfRange";
             "msg": "Quality out of range";
         },
         {
-            "code": 6006;
+            "code": 6007;
             "name": "subscriptionAlreadyEnded";
             "msg": "Subscription has already ended";
         },
         {
-            "code": 6007;
+            "code": 6008;
             "name": "activeSubscription";
             "msg": "Subscription is still active";
         },
         {
-            "code": 6008;
+            "code": 6009;
             "name": "notOwner";
             "msg": "Not the contract owner";
         }
@@ -883,6 +969,18 @@ export type SubscriptionManager = {
                 "fields": [
                     {
                         "name": "newCollectorFee";
+                        "type": "u64";
+                    }
+                ];
+            };
+        },
+        {
+            "name": "dataProviderFee";
+            "type": {
+                "kind": "struct";
+                "fields": [
+                    {
+                        "name": "fee";
                         "type": "u64";
                     }
                 ];
@@ -977,6 +1075,10 @@ export type SubscriptionManager = {
                     },
                     {
                         "name": "nftProgramId";
+                        "type": "pubkey";
+                    },
+                    {
+                        "name": "paymentSplToken";
                         "type": "pubkey";
                     },
                     {

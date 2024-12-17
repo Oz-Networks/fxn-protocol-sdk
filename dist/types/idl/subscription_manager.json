@@ -277,6 +277,9 @@
                     "name": "nft_program"
                 },
                 {
+                    "name": "payment_spl_token"
+                },
+                {
                     "name": "system_program",
                     "address": "11111111111111111111111111111111"
                 }
@@ -479,6 +482,56 @@
             ]
         },
         {
+            "name": "set_data_provider_fee",
+            "discriminator": [
+                211,
+                248,
+                5,
+                80,
+                147,
+                98,
+                135,
+                148
+            ],
+            "accounts": [
+                {
+                    "name": "data_provider_fee",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    102,
+                                    101,
+                                    101
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": [
+                {
+                    "name": "fee",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
             "name": "set_fee_per_day",
             "discriminator": [
                 141,
@@ -652,6 +705,18 @@
                     "writable": true
                 },
                 {
+                    "name": "data_provider_payment_ata",
+                    "writable": true
+                },
+                {
+                    "name": "subscriber_payment_ata",
+                    "writable": true
+                },
+                {
+                    "name": "owner_payment_ata",
+                    "writable": true
+                },
+                {
                     "name": "system_program",
                     "address": "11111111111111111111111111111111"
                 },
@@ -661,6 +726,9 @@
                 },
                 {
                     "name": "nft_token_account"
+                },
+                {
+                    "name": "dp_fee_account"
                 }
             ],
             "args": [
@@ -676,6 +744,19 @@
         }
     ],
     "accounts": [
+        {
+            "name": "DataProviderFee",
+            "discriminator": [
+                150,
+                246,
+                242,
+                181,
+                157,
+                243,
+                172,
+                176
+            ]
+        },
         {
             "name": "QualityInfo",
             "discriminator": [
@@ -840,31 +921,36 @@
         },
         {
             "code": 6003,
+            "name": "InvalidTokenAccount",
+            "msg": "Invalid Token Account"
+        },
+        {
+            "code": 6004,
             "name": "InvalidNFTHolder",
             "msg": "Invalid NFT holder"
         },
         {
-            "code": 6004,
+            "code": 6005,
             "name": "SubscriptionNotFound",
             "msg": "Subscription not found"
         },
         {
-            "code": 6005,
+            "code": 6006,
             "name": "QualityOutOfRange",
             "msg": "Quality out of range"
         },
         {
-            "code": 6006,
+            "code": 6007,
             "name": "SubscriptionAlreadyEnded",
             "msg": "Subscription has already ended"
         },
         {
-            "code": 6007,
+            "code": 6008,
             "name": "ActiveSubscription",
             "msg": "Subscription is still active"
         },
         {
-            "code": 6008,
+            "code": 6009,
             "name": "NotOwner",
             "msg": "Not the contract owner"
         }
@@ -877,6 +963,18 @@
                 "fields": [
                     {
                         "name": "new_collector_fee",
+                        "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "DataProviderFee",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "fee",
                         "type": "u64"
                     }
                 ]
@@ -971,6 +1069,10 @@
                     },
                     {
                         "name": "nft_program_id",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "payment_spl_token",
                         "type": "pubkey"
                     },
                     {

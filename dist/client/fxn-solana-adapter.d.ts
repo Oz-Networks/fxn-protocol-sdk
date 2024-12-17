@@ -26,6 +26,9 @@ export interface SubscriberDetails {
     };
     status: 'active' | 'expired' | 'expiring_soon';
 }
+export interface SetDataProviderFeeParams {
+    fee: number;
+}
 type QualityInfoAccount = IdlAccounts<SubscriptionManager>['qualityInfo'];
 type SubscriptionAccount = IdlAccounts<SubscriptionManager>['subscription'];
 export declare enum SubscriptionErrorCode {
@@ -53,6 +56,7 @@ export declare class SolanaAdapter {
     program: Program<SubscriptionManager>;
     provider: AnchorProvider;
     constructor(provider: AnchorProvider);
+    setDataProviderFee(params: SetDataProviderFeeParams): Promise<TransactionSignature>;
     createSubscription(params: CreateSubscriptionParams): Promise<TransactionSignature>;
     getSubscriptionStatus(endTime: BN): 'active' | 'expired' | 'expiring_soon';
     getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey>;
@@ -73,6 +77,7 @@ export declare class SolanaAdapter {
         qualityPDA: PublicKey;
         subscriptionPDA: PublicKey;
         subscribersListPDA: PublicKey;
+        dataProviderFeePDA: PublicKey;
     };
     private handleError;
 }

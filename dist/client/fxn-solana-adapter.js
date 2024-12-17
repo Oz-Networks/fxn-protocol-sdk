@@ -42,6 +42,34 @@ class SolanaAdapter {
         this.program = new anchor_1.Program(subscription_manager_json_1.default, provider);
     }
     // adapters/solana-adapter.ts
+    setDataProviderFee(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const dataProvider = this.provider.wallet.publicKey;
+                const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
+                const txHash = yield this.program.methods
+                    .setDataProviderFee(params.fee)
+                    .accounts({
+                    dataProviderFee: dataProviderFeePDA,
+                    dataProvider: dataProvider,
+                    SystemProgram: web3_js_1.SystemProgram.programId,
+                })
+                    .rpc();
+                console.log('Data Provider daily fee set:', {
+                    txHash,
+                    dataProviderFeePDA: dataProviderFeePDA.toString()
+                });
+                return txHash;
+            }
+            catch (error) {
+                console.error('Error setting data provider fee:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
     createSubscription(params) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.provider.wallet.publicKey) {
@@ -64,6 +92,16 @@ class SolanaAdapter {
                 });
                 // Get the state account to get the correct owner
                 const state = yield this.program.account.state.fetch(pdas.statePDA);
+                // Get the associated token accounts for the payment
+                const fxnMintAddress = new web3_js_1.PublicKey(config_1.config.fxnMintAddress);
+                const dp_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, params.dataProvider);
+                const subscriber_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, subscriber);
+                const owner_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, state.owner);
+                console.log('ATAs for subscription:', {
+                    dataProviderATA: dp_payment_ata.toString(),
+                    subscriberATA: subscriber_payment_ata.toString(),
+                    ownerATA: owner_payment_ata.toString()
+                });
                 const txHash = yield this.program.methods
                     .subscribe(params.recipient, new anchor_1.BN(Math.floor(Date.now() / 1000) + (params.durationInDays * 24 * 60 * 60)))
                     .accounts({
@@ -73,9 +111,13 @@ class SolanaAdapter {
                     subscription: pdas.subscriptionPDA,
                     subscribersList: pdas.subscribersListPDA,
                     owner: state.owner,
+                    dataProviderPaymentAta: dp_payment_ata,
+                    subscriberPaymentAta: subscriber_payment_ata,
+                    ownerPaymentAta: owner_payment_ata,
                     systemProgram: web3_js_1.SystemProgram.programId,
                     tokenProgram: spl_token_2.TOKEN_PROGRAM_ID,
                     nftTokenAccount: params.nftTokenAccount,
+                    dpFeeAccount: pdas.dataProviderFeePDA,
                 })
                     .rpc();
                 console.log('Subscription created:', {
@@ -334,6 +376,16 @@ class SolanaAdapter {
                 }
                 // Get the state account to verify the owner
                 const state = yield this.program.account.state.fetch(pdas.statePDA);
+                // Get the associated token accounts for the payment
+                const fxnMintAddress = new web3_js_1.PublicKey(config_1.config.fxnMintAddress);
+                const dp_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, params.dataProvider);
+                const subscriber_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, subscriber);
+                const owner_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, state.owner);
+                console.log('ATAs for subscription:', {
+                    dataProviderATA: dp_payment_ata.toString(),
+                    subscriberATA: subscriber_payment_ata.toString(),
+                    ownerATA: owner_payment_ata.toString()
+                });
                 // Send renewal transaction
                 const txHash = yield this.program.methods
                     .renewSubscription(params.newRecipient, new anchor_1.BN(params.newEndTime), params.qualityScore)
@@ -344,9 +396,13 @@ class SolanaAdapter {
                     subscription: pdas.subscriptionPDA,
                     qualityInfo: pdas.qualityPDA,
                     owner: state.owner,
+                    dataProviderPaymentAta: dp_payment_ata,
+                    subscriberPaymentAta: subscriber_payment_ata,
+                    ownerPaymentAta: owner_payment_ata,
                     systemProgram: web3_js_1.SystemProgram.programId,
                     tokenProgram: spl_token_2.TOKEN_PROGRAM_ID,
                     nftTokenAccount: params.nftTokenAccount,
+                    dpFeeAccount: pdas.dataProviderFeePDA,
                 })
                     .rpc();
                 return txHash;
@@ -428,7 +484,7 @@ class SolanaAdapter {
         });
     }
     getProgramAddresses(dataProvider, subscriber) {
-        const [statePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("storage")], this.program.programId);
+        const [statePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("state storage")], this.program.programId);
         const [qualityPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("quality"), dataProvider.toBuffer()], this.program.programId);
         const [subscriptionPDA] = web3_js_1.PublicKey.findProgramAddressSync([
             Buffer.from("subscription"),
@@ -436,11 +492,13 @@ class SolanaAdapter {
             dataProvider.toBuffer(),
         ], this.program.programId);
         const [subscribersListPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscribers"), dataProvider.toBuffer()], this.program.programId);
+        const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
         return {
             statePDA,
             qualityPDA,
             subscriptionPDA,
             subscribersListPDA,
+            dataProviderFeePDA,
         };
     }
     handleError(error) {
