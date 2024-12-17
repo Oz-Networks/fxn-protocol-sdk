@@ -49,6 +49,10 @@ export interface SubscriberDetails {
     status: 'active' | 'expired' | 'expiring_soon';
 }
 
+export interface SetDataProviderFeeParams {
+    fee: number;
+}
+
 // Properly typed account interfaces
 type QualityInfoAccount = IdlAccounts<SubscriptionManager>['qualityInfo'];
 type StateAccount = IdlAccounts<SubscriptionManager>['state'];
@@ -96,6 +100,39 @@ export class SolanaAdapter {
     }
 
     // adapters/solana-adapter.ts
+    async setDataProviderFee(params: SetDataProviderFeeParams): Promise<TransactionSignature> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const dataProvider = this.provider.wallet.publicKey;
+            const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("fee"), dataProvider.toBuffer()],
+                this.program.programId
+            );
+ 
+
+            const txHash = await this.program.methods
+                .setDataProviderFee(params.fee)
+                .accounts({
+                    dataProviderFee: dataProviderFeePDA,
+                    dataProvider: dataProvider,
+                    SystemProgram: SystemProgram.programId,
+                } as any)
+                .rpc();
+
+            console.log('Data Provider daily fee set:', {
+                txHash,
+                dataProviderFeePDA: dataProviderFeePDA.toString()
+            });
+            return txHash;
+        } catch (error) {
+            console.error('Error setting data provider fee:', error);
+            throw this.handleError(error);
+        }
+    }
+
     async createSubscription(params: CreateSubscriptionParams): Promise<TransactionSignature> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
@@ -122,6 +159,27 @@ export class SolanaAdapter {
             // Get the state account to get the correct owner
             const state = await this.program.account.state.fetch(pdas.statePDA);
 
+            // Get the associated token accounts for the payment
+            const fxnMintAddress = new PublicKey(config.fxnMintAddress!);
+            const dp_payment_ata = await getAssociatedTokenAddress(
+                fxnMintAddress,
+                params.dataProvider,
+            );
+            const subscriber_payment_ata = await getAssociatedTokenAddress(
+                fxnMintAddress,
+                subscriber,
+            );
+            const owner_payment_ata = await getAssociatedTokenAddress(
+                fxnMintAddress,
+                state.owner,
+            );
+
+            console.log('ATAs for subscription:', {
+                dataProviderATA: dp_payment_ata.toString(),
+                subscriberATA: subscriber_payment_ata.toString(),
+                ownerATA: owner_payment_ata.toString()
+            });
+
             const txHash = await this.program.methods
                 .subscribe(
                     params.recipient,
@@ -134,9 +192,13 @@ export class SolanaAdapter {
                     subscription: pdas.subscriptionPDA,
                     subscribersList: pdas.subscribersListPDA,
                     owner: state.owner,
+                    dataProviderPaymentAta: dp_payment_ata,
+                    subscriberPaymentAta: subscriber_payment_ata,
+                    ownerPaymentAta: owner_payment_ata,
                     systemProgram: SystemProgram.programId,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     nftTokenAccount: params.nftTokenAccount,
+                    dpFeeAccount: pdas.dataProviderFeePDA,
                 } as any)
                 .rpc();
 
@@ -458,6 +520,27 @@ export class SolanaAdapter {
             // Get the state account to verify the owner
             const state = await this.program.account.state.fetch(pdas.statePDA) as StateAccount;
 
+            // Get the associated token accounts for the payment
+            const fxnMintAddress = new PublicKey(config.fxnMintAddress!);
+            const dp_payment_ata = await getAssociatedTokenAddress(
+                fxnMintAddress,
+                params.dataProvider,
+            );
+            const subscriber_payment_ata = await getAssociatedTokenAddress(
+                fxnMintAddress,
+                subscriber,
+            );
+            const owner_payment_ata = await getAssociatedTokenAddress(
+                fxnMintAddress,
+                state.owner,
+            );
+
+            console.log('ATAs for subscription:', {
+                dataProviderATA: dp_payment_ata.toString(),
+                subscriberATA: subscriber_payment_ata.toString(),
+                ownerATA: owner_payment_ata.toString()
+            });
+
             // Send renewal transaction
             const txHash = await this.program.methods
                 .renewSubscription(
@@ -472,9 +555,13 @@ export class SolanaAdapter {
                     subscription: pdas.subscriptionPDA,
                     qualityInfo: pdas.qualityPDA,
                     owner: state.owner,
+                    dataProviderPaymentAta: dp_payment_ata,
+                    subscriberPaymentAta: subscriber_payment_ata,
+                    ownerPaymentAta: owner_payment_ata,
                     systemProgram: SystemProgram.programId,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     nftTokenAccount: params.nftTokenAccount,
+                    dpFeeAccount: pdas.dataProviderFeePDA,
                 } as any)
                 .rpc();
 
@@ -586,9 +673,10 @@ export class SolanaAdapter {
         qualityPDA: PublicKey;
         subscriptionPDA: PublicKey;
         subscribersListPDA: PublicKey;
+        dataProviderFeePDA: PublicKey;
     } {
         const [statePDA] = PublicKey.findProgramAddressSync(
-            [Buffer.from("storage")],
+            [Buffer.from("state storage")],
             this.program.programId
         );
 
@@ -611,11 +699,17 @@ export class SolanaAdapter {
             this.program.programId
         );
 
+        const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
+            [Buffer.from("fee"), dataProvider.toBuffer()],
+            this.program.programId
+        );
+
         return {
             statePDA,
             qualityPDA,
             subscriptionPDA,
             subscribersListPDA,
+            dataProviderFeePDA,
         };
     }
 
