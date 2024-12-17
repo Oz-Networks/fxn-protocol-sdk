@@ -65,6 +65,11 @@ export declare class SolanaAdapter {
     getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]>;
     getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]>;
     renewSubscription(params: RenewParams): Promise<TransactionSignature>;
+    /**
+     * Register a new data provider with the subscription manager
+     * Currently only callable by the contract owner
+     * Additional contract owners to be added in the future
+     */
     mintRegistrationNFT(): Promise<{
         mint: PublicKey;
         tokenAccount: PublicKey;

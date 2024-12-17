@@ -413,22 +413,44 @@ class SolanaAdapter {
             }
         });
     }
+    /**
+     * Register a new data provider with the subscription manager
+     * Currently only callable by the contract owner
+     * Additional contract owners to be added in the future
+     */
     mintRegistrationNFT() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.provider.wallet.publicKey) {
                 throw new Error("Wallet not connected");
             }
             try {
+                // Get the keypair from the wallet
+                const payer = this.provider.wallet.payer;
+                if (!payer) {
+                    throw new Error("No payer found in wallet");
+                }
+                console.log('Creating mint with payer:', payer.publicKey.toString());
                 // Create the mint account
-                const mint = yield (0, spl_token_1.createMint)(this.provider.connection, this.provider.wallet, this.provider.wallet.publicKey, null, 0, undefined, { commitment: 'confirmed' }, spl_token_2.TOKEN_PROGRAM_ID);
+                const mint = yield (0, spl_token_1.createMint)(this.provider.connection, payer, // Use the payer directly
+                this.provider.wallet.publicKey, null, 0, undefined, { commitment: 'confirmed' }, spl_token_2.TOKEN_PROGRAM_ID);
+                console.log('Created mint:', mint.toString());
                 // Create associated token account
-                const tokenAccount = yield (0, spl_token_1.createAssociatedTokenAccount)(this.provider.connection, this.provider.wallet, mint, this.provider.wallet.publicKey);
+                const tokenAccount = yield (0, spl_token_1.createAssociatedTokenAccount)(this.provider.connection, payer, mint, this.provider.wallet.publicKey);
+                console.log('Created token account:', tokenAccount.toString());
                 // Mint one token
-                yield (0, spl_token_1.mintTo)(this.provider.connection, this.provider.wallet, mint, tokenAccount, this.provider.wallet.publicKey, 1);
+                yield (0, spl_token_1.mintTo)(this.provider.connection, payer, mint, tokenAccount, this.provider.wallet.publicKey, 1);
+                console.log('Minted token');
                 return { mint, tokenAccount };
             }
             catch (error) {
                 console.error('Error minting registration NFT:', error);
+                // Add more detailed error information
+                if (error instanceof Error) {
+                    console.error('Error details:', {
+                        message: error.message,
+                        stack: error.stack
+                    });
+                }
                 throw this.handleError(error);
             }
         });

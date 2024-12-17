@@ -572,6 +572,11 @@ export class SolanaAdapter {
         }
     }
 
+    /**
+     * Register a new data provider with the subscription manager
+     * Currently only callable by the contract owner
+     * Additional contract owners to be added in the future
+     */
     async mintRegistrationNFT(): Promise<{
         mint: PublicKey;
         tokenAccount: PublicKey;
@@ -581,10 +586,18 @@ export class SolanaAdapter {
         }
 
         try {
+            // Get the keypair from the wallet
+            const payer = (this.provider.wallet as any).payer;
+            if (!payer) {
+                throw new Error("No payer found in wallet");
+            }
+
+            console.log('Creating mint with payer:', payer.publicKey.toString());
+
             // Create the mint account
             const mint = await createMint(
                 this.provider.connection,
-                this.provider.wallet as unknown as Signer,
+                payer,  // Use the payer directly
                 this.provider.wallet.publicKey,
                 null,
                 0,
@@ -593,27 +606,40 @@ export class SolanaAdapter {
                 TOKEN_PROGRAM_ID
             );
 
+            console.log('Created mint:', mint.toString());
+
             // Create associated token account
             const tokenAccount = await createAssociatedTokenAccount(
                 this.provider.connection,
-                this.provider.wallet as unknown as Signer,
+                payer,
                 mint,
                 this.provider.wallet.publicKey
             );
 
+            console.log('Created token account:', tokenAccount.toString());
+
             // Mint one token
             await mintTo(
                 this.provider.connection,
-                this.provider.wallet as unknown as Signer,
+                payer,
                 mint,
                 tokenAccount,
                 this.provider.wallet.publicKey,
                 1
             );
 
+            console.log('Minted token');
+
             return { mint, tokenAccount };
         } catch (error) {
             console.error('Error minting registration NFT:', error);
+            // Add more detailed error information
+            if (error instanceof Error) {
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+            }
             throw this.handleError(error);
         }
     }
