@@ -60,20 +60,9 @@ export declare class SolanaAdapter {
     createSubscription(params: CreateSubscriptionParams): Promise<TransactionSignature>;
     getSubscriptionStatus(endTime: BN): 'active' | 'expired' | 'expiring_soon';
     getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey>;
-    getAgentSubscribers(agentAddress: PublicKey): Promise<PublicKey[]>;
-    getActiveSubscriptionsForAgent(agentAddress: PublicKey): Promise<number>;
     getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]>;
     getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]>;
     renewSubscription(params: RenewParams): Promise<TransactionSignature>;
-    /**
-     * Register a new data provider with the subscription manager
-     * Currently only callable by the contract owner
-     * Additional contract owners to be added in the future
-     */
-    mintRegistrationNFT(): Promise<{
-        mint: PublicKey;
-        tokenAccount: PublicKey;
-    }>;
     cancelSubscription(params: CancelParams): Promise<TransactionSignature>;
     getSubscriptionState(subscriptionPDA: PublicKey): Promise<SubscriptionAccount>;
     getQualityInfo(dataProvider: PublicKey): Promise<QualityInfoAccount>;

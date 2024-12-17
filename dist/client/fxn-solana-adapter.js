@@ -51,7 +51,7 @@ class SolanaAdapter {
                 const dataProvider = this.provider.wallet.publicKey;
                 const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
                 const txHash = yield this.program.methods
-                    .setDataProviderFee(params.fee)
+                    .setDataProviderFee(new anchor_1.BN(params.fee))
                     .accounts({
                     dataProviderFee: dataProviderFeePDA,
                     dataProvider: dataProvider,
@@ -157,66 +157,6 @@ class SolanaAdapter {
             }
             catch (error) {
                 console.error('Error getting provider token account:', error);
-                throw this.handleError(error);
-            }
-        });
-    }
-    // adapters/solana-adapter.ts
-    getAgentSubscribers(agentAddress) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const [subscribersListPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscribers"), agentAddress.toBuffer()], this.program.programId);
-                console.log('Fetching subscribers for agent:', {
-                    agent: agentAddress.toString(),
-                    subscribersListPDA: subscribersListPDA.toString()
-                });
-                try {
-                    // Try to fetch the subscribers list account
-                    const subscribersList = yield this.program.account.subscribersList.fetch(subscribersListPDA);
-                    console.log('Found subscribers:', subscribersList.subscribers.map(s => s.toString()));
-                    return subscribersList.subscribers;
-                }
-                catch (error) {
-                    console.log('No subscribers list found, returning empty array');
-                    return [];
-                }
-            }
-            catch (error) {
-                console.error('Error getting agent subscribers:', error);
-                throw this.handleError(error);
-            }
-        });
-    }
-    // Also add this method to get active subscriptions
-    getActiveSubscriptionsForAgent(agentAddress) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                // Get all subscribers first
-                const subscribers = yield this.getAgentSubscribers(agentAddress);
-                // For each subscriber, check if they have an active subscription
-                let activeCount = 0;
-                for (const subscriber of subscribers) {
-                    const [subscriptionPDA] = web3_js_1.PublicKey.findProgramAddressSync([
-                        Buffer.from("subscription"),
-                        subscriber.toBuffer(),
-                        agentAddress.toBuffer(),
-                    ], this.program.programId);
-                    try {
-                        const subscription = yield this.program.account.subscription.fetch(subscriptionPDA);
-                        // Check if subscription is active
-                        if (subscription.endTime.gt(new anchor_1.BN(Math.floor(Date.now() / 1000)))) {
-                            activeCount++;
-                        }
-                    }
-                    catch (error) {
-                        // Subscription not found or error, continue to next subscriber
-                        continue;
-                    }
-                }
-                return activeCount;
-            }
-            catch (error) {
-                console.error('Error getting active subscriptions:', error);
                 throw this.handleError(error);
             }
         });
@@ -409,48 +349,6 @@ class SolanaAdapter {
             }
             catch (error) {
                 console.error('Error in renewSubscription:', error);
-                throw this.handleError(error);
-            }
-        });
-    }
-    /**
-     * Register a new data provider with the subscription manager
-     * Currently only callable by the contract owner
-     * Additional contract owners to be added in the future
-     */
-    mintRegistrationNFT() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.provider.wallet.publicKey) {
-                throw new Error("Wallet not connected");
-            }
-            try {
-                // Get the keypair from the wallet
-                const payer = this.provider.wallet.payer;
-                if (!payer) {
-                    throw new Error("No payer found in wallet");
-                }
-                console.log('Creating mint with payer:', payer.publicKey.toString());
-                // Create the mint account
-                const mint = yield (0, spl_token_1.createMint)(this.provider.connection, payer, // Use the payer directly
-                this.provider.wallet.publicKey, null, 0, undefined, { commitment: 'confirmed' }, spl_token_2.TOKEN_PROGRAM_ID);
-                console.log('Created mint:', mint.toString());
-                // Create associated token account
-                const tokenAccount = yield (0, spl_token_1.createAssociatedTokenAccount)(this.provider.connection, payer, mint, this.provider.wallet.publicKey);
-                console.log('Created token account:', tokenAccount.toString());
-                // Mint one token
-                yield (0, spl_token_1.mintTo)(this.provider.connection, payer, mint, tokenAccount, this.provider.wallet.publicKey, 1);
-                console.log('Minted token');
-                return { mint, tokenAccount };
-            }
-            catch (error) {
-                console.error('Error minting registration NFT:', error);
-                // Add more detailed error information
-                if (error instanceof Error) {
-                    console.error('Error details:', {
-                        message: error.message,
-                        stack: error.stack
-                    });
-                }
                 throw this.handleError(error);
             }
         });
