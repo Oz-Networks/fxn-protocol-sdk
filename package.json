@@ -24,7 +24,10 @@
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "build:server": "tsc -p server/tsconfig.json",
+    "start": "node dist/server/src/index.js",
+    "dev": "ts-node server/src/index.ts"
   },
   "author": "FXN",
   "license": "ISC",
