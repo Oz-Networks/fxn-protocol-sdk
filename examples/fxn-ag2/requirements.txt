@@ -1,0 +1,10 @@
+# requirements.txt
+pyautogen[vision]
+solana
+base58
+requests
+pandas
+pillow
+python-dotenv
+aiohttp
+flaml[automl]

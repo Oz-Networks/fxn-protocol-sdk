@@ -1,0 +1,11 @@
+# docker-compose.yml
+version: '3.8'
+services:
+  bookkeeping-swarm:
+    build: .
+    env_file: .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./workspace:/app/workspace
+      - ./fxn-protocol-sdk:/app/fxn-protocol-sdk
