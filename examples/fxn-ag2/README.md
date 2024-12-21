@@ -1,4 +1,3 @@
-```markdown
 # FXN Protocol + AutoGen Integration Example
 
 This repository demonstrates an integration between the [FXN Protocol](https://fxn.world) and [AutoGen](https://microsoft.github.io/autogen/) (AG2), showcasing how to create an AI agent swarm that processes receipts for subscribed users.
@@ -127,7 +126,7 @@ pytest -v tests/ --log-cli-level=DEBUG
 
 ## License
 
-[Add your license information here]
+MIT license.
 
 ## Notes
 
@@ -141,4 +140,3 @@ This is an example integration and may need additional security and error handli
 For more information:
 - [FXN Protocol Documentation](https://fxn.world)
 - [AutoGen Documentation](https://microsoft.github.io/autogen/)
-```
