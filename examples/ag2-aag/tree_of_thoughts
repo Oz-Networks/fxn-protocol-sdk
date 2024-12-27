@@ -1,0 +1,45 @@
+// Tree of Thoughts
+digraph {
+	rankdir=TB
+	0 [label="exitcode: 0 (execution succeeded)
+Code output: 
+3
+ visits: 0
+ value: 0"]
+	"0_0" [label="Request more context or information about the code...
+ visits: 0
+ value: 0.4444444444444444"]
+	0 -> "0_0"
+	"0_1" [label="Suggest analyzing the output: Given the output is ...
+ visits: 0
+ value: 0.7777777777777778"]
+	"0_1_0" [label="Uncover the specific function or lines of code tha...
+ visits: 0
+ value: 0.7777777777777778"]
+	"0_1" -> "0_1_0"
+	"0_1_1" [label="Understand the user's question or problem statemen...
+ visits: 0
+ value: 0.3333333333333333"]
+	"0_1" -> "0_1_1"
+	"0_1_2" [label="Propose detailed analysis methods for the output \"...
+ visits: 0
+ value: 0.6666666666666666"]
+	"0_1" -> "0_1_2"
+	"0_1_3" [label="Research potential significance of the output in s...
+ visits: 0
+ value: 0.5555555555555556"]
+	"0_1" -> "0_1_3"
+	"0_1_4" [label="TERMINATE. While concluding the process isn't usua...
+ visits: 0
+ value: 1.0"]
+	"0_1" -> "0_1_4"
+	0 -> "0_1"
+	"0_2" [label="Propose checking the rest of the code: By looking ...
+ visits: 0
+ value: 0.5555555555555556"]
+	0 -> "0_2"
+	"0_3" [label="Recommend running additional tests or increasing t...
+ visits: 0
+ value: 0.2222222222222222"]
+	0 -> "0_3"
+}

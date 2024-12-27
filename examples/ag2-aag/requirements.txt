@@ -1,0 +1,8 @@
+ag2
+python-dotenv
+graphviz
+requests
+fastapi
+uvicorn[standard]
+websockets
+aiofiles
