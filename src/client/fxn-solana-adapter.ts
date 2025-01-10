@@ -283,11 +283,18 @@ export class SolanaAdapter {
 
             // 2. For each subscribers list
             for (const list of allSubscriberLists) {
-                // This is the data provider's key since the list PDA is created with data_provider
-                const dataProvider = list.account.subscribers.find(sub => sub.equals(userPublicKey));
+                // Check if the user is in this provider's subscriber list
+                const isSubscriber = list.account.subscribers.some(sub =>
+                    sub.toString() === userPublicKey.toString()
+                );
 
-                // If this user is in the list
-                if (dataProvider) {
+                if (isSubscriber) {
+                    // The data provider is associated with this subscribers list
+                    const dataProvider = await PublicKey.findProgramAddressSync(
+                        [Buffer.from("subscribers"), list.publicKey.toBuffer()],
+                        this.program.programId
+                    )[0];
+
                     // 3. Derive the subscription PDA for this user and data provider pair
                     const [subscriptionPDA] = PublicKey.findProgramAddressSync(
                         [
