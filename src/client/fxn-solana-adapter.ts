@@ -277,57 +277,39 @@ export class SolanaAdapter {
 
     async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
         try {
-            // 1. First get all SubscribersList accounts
-            const allSubscriberLists = await this.program.account.subscribersList.all();
+            // Get all subscription accounts directly
+            const subscriptionAccounts = await this.program.account.subscription.all();
+            console.log('Total subscription accounts found:', subscriptionAccounts.length);
+
             const userSubscriptions = [];
 
-            // 2. For each subscribers list
-            for (const list of allSubscriberLists) {
-                // Check if the user is in this provider's subscriber list
-                const isSubscriber = list.account.subscribers.some(sub =>
-                    sub.toString() === userPublicKey.toString()
+            for (const subAccount of subscriptionAccounts) {
+                // Check if this subscription PDA matches our expected format
+                const [expectedPDA] = PublicKey.findProgramAddressSync(
+                    [
+                        Buffer.from("subscription"),
+                        userPublicKey.toBuffer(),
+                        // The data provider should be extractable from the account data
+                        // We might need to add logging here to see the actual account structure
+                    ],
+                    this.program.programId
                 );
 
-                if (isSubscriber) {
-                    // The data provider is associated with this subscribers list
-                    const dataProvider = await PublicKey.findProgramAddressSync(
-                        [Buffer.from("subscribers"), list.publicKey.toBuffer()],
-                        this.program.programId
-                    )[0];
+                console.log('Checking subscription account:', subAccount.publicKey.toString());
+                console.log('Account data:', subAccount.account);
 
-                    // 3. Derive the subscription PDA for this user and data provider pair
-                    const [subscriptionPDA] = PublicKey.findProgramAddressSync(
-                        [
-                            Buffer.from("subscription"),
-                            userPublicKey.toBuffer(),
-                            dataProvider.toBuffer()
-                        ],
-                        this.program.programId
-                    );
-
-                    try {
-                        // 4. Fetch the subscription account
-                        const subscription = await this.program.account.subscription.fetch(subscriptionPDA);
-
-                        if (subscription) {
-                            userSubscriptions.push({
-                                subscription,
-                                subscriptionPDA,
-                                dataProvider,
-                                status: this.getSubscriptionStatus(subscription.endTime)
-                            });
-                        }
-                    } catch (e) {
-                        console.log(`No subscription found for provider ${dataProvider.toString()}`);
-                        continue;
-                    }
+                if (subAccount.publicKey.equals(expectedPDA)) {
+                    // This subscription belongs to our user
+                    userSubscriptions.push({
+                        subscription: subAccount.account,
+                        subscriptionPDA: subAccount.publicKey,
+                        // We'll need to determine how to get the data provider
+                        status: this.getSubscriptionStatus(subAccount.account.endTime)
+                    });
                 }
             }
 
-            // Filter to only active subscriptions
-            return userSubscriptions.filter(sub =>
-                sub.subscription.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
-            );
+            return userSubscriptions;
         } catch (error) {
             console.error('Error in getAllSubscriptionsForUser:', error);
             throw this.handleError(error);
