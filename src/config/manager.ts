@@ -26,7 +26,12 @@ export class ConfigurationManager {
 
     public static getInstance(): ConfigurationManager {
         if (!ConfigurationManager.instance) {
-            throw new Error('ConfigurationManager must be initialized before use');
+            // Fallback to devnet config for backward compatibility
+            return ConfigurationManager.initialize({
+                network: 'devnet',
+                timeout: 30000,
+                commitment: 'confirmed'
+            });
         }
         return ConfigurationManager.instance;
     }
