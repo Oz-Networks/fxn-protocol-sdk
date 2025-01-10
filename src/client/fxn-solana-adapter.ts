@@ -277,27 +277,19 @@ export class SolanaAdapter {
 
     async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
         try {
-
-            // Get all subscription accounts
-            const subscriptionAccounts = await this.program.account.subscription.all();
-            // Get all subscriber lists
-            const subscriberLists = await this.program.account.subscribersList.all();
+            // 1. First get all SubscribersList accounts
+            const allSubscriberLists = await this.program.account.subscribersList.all();
             const userSubscriptions = [];
-            // For each subscriber list
-            for (const list of subscriberLists) {
-                // Extract data provider from the subscriber list PDA
-                // The PDA is created with [b"subscribers", data_provider.key().as_ref()]
-                const [listPDA, _] = PublicKey.findProgramAddressSync(
-                    [Buffer.from("subscribers"), list.publicKey.toBuffer()],
-                    this.program.programId
-                );
 
-                // If this matches our list's PDA, we found a data provider
-                if (listPDA.equals(list.publicKey)) {
-                    const dataProvider = list.publicKey;
+            // 2. For each subscribers list
+            for (const list of allSubscriberLists) {
+                // This is the data provider's key since the list PDA is created with data_provider
+                const dataProvider = list.account.subscribers.find(sub => sub.equals(userPublicKey));
 
-                    // Calculate what our subscription PDA would be with this provider
-                    const [expectedSubPDA] = PublicKey.findProgramAddressSync(
+                // If this user is in the list
+                if (dataProvider) {
+                    // 3. Derive the subscription PDA for this user and data provider pair
+                    const [subscriptionPDA] = PublicKey.findProgramAddressSync(
                         [
                             Buffer.from("subscription"),
                             userPublicKey.toBuffer(),
@@ -306,21 +298,25 @@ export class SolanaAdapter {
                         this.program.programId
                     );
 
-                    // Look for this subscription in our accounts
-                    const subscription = subscriptionAccounts.find(acc =>
-                        acc.publicKey.equals(expectedSubPDA)
-                    );
+                    try {
+                        // 4. Fetch the subscription account
+                        const subscription = await this.program.account.subscription.fetch(subscriptionPDA);
 
-                    if (subscription) {
-                        userSubscriptions.push({
-                            subscription: subscription.account,
-                            subscriptionPDA: subscription.publicKey,
-                            dataProvider,
-                            status: this.getSubscriptionStatus(subscription.account.endTime)
-                        });
+                        if (subscription) {
+                            userSubscriptions.push({
+                                subscription,
+                                subscriptionPDA,
+                                dataProvider,
+                                status: this.getSubscriptionStatus(subscription.endTime)
+                            });
+                        }
+                    } catch (e) {
+                        console.log(`No subscription found for provider ${dataProvider.toString()}`);
+                        continue;
                     }
                 }
             }
+
             // Filter to only active subscriptions
             return userSubscriptions.filter(sub =>
                 sub.subscription.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
@@ -330,6 +326,7 @@ export class SolanaAdapter {
             throw this.handleError(error);
         }
     }
+
     async renewSubscription(params: RenewParams): Promise<TransactionSignature> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
