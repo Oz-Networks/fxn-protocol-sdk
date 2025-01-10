@@ -1,3 +1,5 @@
 cache/*
 node_modules/*
 .idea/*
+.DS_Store
+-n

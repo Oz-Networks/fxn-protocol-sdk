@@ -17,7 +17,7 @@ import {
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import type { SubscriptionManager } from '../types/subscription_manager';
 import IDL from '../types/idl/subscription_manager.json';
-import {config} from "../config";
+import { config } from '../config/index';
 
 // Enhanced type definitions
 export interface RenewParams {
@@ -122,10 +122,6 @@ export class SolanaAdapter {
                 } as any)
                 .rpc();
 
-            console.log('Data Provider daily fee set:', {
-                txHash,
-                dataProviderFeePDA: dataProviderFeePDA.toString()
-            });
             return txHash;
         } catch (error) {
             console.error('Error setting data provider fee:', error);
@@ -139,23 +135,8 @@ export class SolanaAdapter {
         }
 
         try {
-            console.log('Creating subscription:', {
-                subscriber: this.provider.wallet.publicKey.toString(),
-                dataProvider: params.dataProvider.toString(),
-                recipient: params.recipient,
-                durationInDays: params.durationInDays,
-                nftTokenAccount: params.nftTokenAccount.toString()
-            });
-
             const subscriber = this.provider.wallet.publicKey;
             const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
-
-            console.log('PDAs for subscription:', {
-                statePDA: pdas.statePDA.toString(),
-                subscriptionPDA: pdas.subscriptionPDA.toString(),
-                subscribersListPDA: pdas.subscribersListPDA.toString()
-            });
-
             // Get the state account to get the correct owner
             const state = await this.program.account.state.fetch(pdas.statePDA);
 
@@ -173,13 +154,6 @@ export class SolanaAdapter {
                 fxnMintAddress,
                 state.owner,
             );
-
-            console.log('ATAs for subscription:', {
-                dataProviderATA: dp_payment_ata.toString(),
-                subscriberATA: subscriber_payment_ata.toString(),
-                ownerATA: owner_payment_ata.toString()
-            });
-
             const txHash = await this.program.methods
                 .subscribe(
                     params.recipient,
@@ -201,11 +175,6 @@ export class SolanaAdapter {
                     dpFeeAccount: pdas.dataProviderFeePDA,
                 } as any)
                 .rpc();
-
-            console.log('Subscription created:', {
-                txHash,
-                subscriptionPDA: pdas.subscriptionPDA.toString()
-            });
 
             return txHash;
         } catch (error) {
@@ -251,8 +220,6 @@ export class SolanaAdapter {
 
     async getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]> {
         try {
-            console.log('Getting subscriptions for provider:', providerPublicKey.toString());
-
             // Get the subscribers list PDA
             const [subscribersListPDA] = PublicKey.findProgramAddressSync(
                 [Buffer.from("subscribers"), providerPublicKey.toBuffer()],
@@ -263,11 +230,6 @@ export class SolanaAdapter {
             const subscribersList = await this.program.account.subscribersList.fetch(
                 subscribersListPDA
             );
-
-            console.log('Found subscribers:', {
-                count: subscribersList.subscribers.length,
-                subscribers: subscribersList.subscribers.map(s => s.toString())
-            });
 
             // Get subscription details for each subscriber
             const subscriptions = await Promise.all(
@@ -287,13 +249,6 @@ export class SolanaAdapter {
                             subscriptionPDA
                         );
 
-                        console.log('Found subscription:', {
-                            subscriber: subscriber.toString(),
-                            pda: subscriptionPDA.toString(),
-                            endTime: subscription.endTime.toString(),
-                            recipient: subscription.recipient
-                        });
-
                         return {
                             subscriber,
                             subscriptionPDA,
@@ -301,32 +256,19 @@ export class SolanaAdapter {
                             status: this.getSubscriptionStatus(subscription.endTime)
                         };
                     } catch (error) {
-                        console.log('No subscription found for subscriber:', subscriber.toString());
+                        console.error('No subscription found for subscriber:', subscriber.toString());
                         return null;
                     }
                 })
             );
 
             // Filter out null values and sort by active status
-            const validSubscriptions = subscriptions
+            return subscriptions
                 .filter((sub): sub is SubscriberDetails =>
                     sub !== null &&
                     sub.subscription.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
                 )
                 .sort((a, b) => b.subscription.endTime.sub(a.subscription.endTime).toNumber());
-
-            console.log('Active subscriptions found:', {
-                total: validSubscriptions.length,
-                subscriptions: validSubscriptions.map(sub => ({
-                    subscriber: sub.subscriber.toString(),
-                    pda: sub.subscriptionPDA.toString(),
-                    endTime: sub.subscription.endTime.toString(),
-                    recipient: sub.subscription.recipient,
-                    status: sub.status
-                }))
-            });
-
-            return validSubscriptions;
         } catch (error) {
             console.error('Error getting provider subscriptions:', error);
             throw this.handleError(error);
@@ -335,18 +277,12 @@ export class SolanaAdapter {
 
     async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
         try {
-            console.log('Getting subscriptions for user:', userPublicKey.toString());
 
             // Get all subscription accounts
             const subscriptionAccounts = await this.program.account.subscription.all();
-            console.log('Total subscription accounts:', subscriptionAccounts.length);
-
             // Get all subscriber lists
             const subscriberLists = await this.program.account.subscribersList.all();
-            console.log('Total subscriber lists:', subscriberLists.length);
-
             const userSubscriptions = [];
-
             // For each subscriber list
             for (const list of subscriberLists) {
                 // Extract data provider from the subscriber list PDA
@@ -370,24 +306,12 @@ export class SolanaAdapter {
                         this.program.programId
                     );
 
-                    console.log('Checking for subscription:', {
-                        provider: dataProvider.toString(),
-                        expectedPDA: expectedSubPDA.toString()
-                    });
-
                     // Look for this subscription in our accounts
                     const subscription = subscriptionAccounts.find(acc =>
                         acc.publicKey.equals(expectedSubPDA)
                     );
 
                     if (subscription) {
-                        console.log('Found subscription:', {
-                            provider: dataProvider.toString(),
-                            pda: subscription.publicKey.toString(),
-                            endTime: subscription.account.endTime.toString(),
-                            recipient: subscription.account.recipient
-                        });
-
                         userSubscriptions.push({
                             subscription: subscription.account,
                             subscriptionPDA: subscription.publicKey,
@@ -397,24 +321,10 @@ export class SolanaAdapter {
                     }
                 }
             }
-
             // Filter to only active subscriptions
-            const activeSubscriptions = userSubscriptions.filter(sub =>
+            return userSubscriptions.filter(sub =>
                 sub.subscription.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
             );
-
-            console.log('Active subscriptions found:', {
-                total: activeSubscriptions.length,
-                subscriptions: activeSubscriptions.map(sub => ({
-                    provider: sub.dataProvider.toString(),
-                    pda: sub.subscriptionPDA.toString(),
-                    endTime: sub.subscription.endTime.toString(),
-                    recipient: sub.subscription.recipient,
-                    status: sub.status
-                }))
-            });
-
-            return activeSubscriptions;
         } catch (error) {
             console.error('Error in getAllSubscriptionsForUser:', error);
             throw this.handleError(error);
@@ -461,12 +371,6 @@ export class SolanaAdapter {
                 fxnMintAddress,
                 state.owner,
             );
-
-            console.log('ATAs for subscription:', {
-                dataProviderATA: dp_payment_ata.toString(),
-                subscriberATA: subscriber_payment_ata.toString(),
-                ownerATA: owner_payment_ata.toString()
-            });
 
             // Send renewal transaction
             const txHash = await this.program.methods

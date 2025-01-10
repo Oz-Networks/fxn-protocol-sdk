@@ -1,54 +1,6 @@
-import { PublicKey } from '@solana/web3.js';
-
-export type NetworkType = 'mainnet' | 'testnet' | 'devnet';
-
-export interface NetworkConfig {
-    subscriptionManagerAddress: string;
-    nftTokenAddress: string;
-    fxnMintAddress: string;
-    rpcEndpoint: string;
-    wsEndpoint?: string;
-}
-
-export interface SDKConfig {
-    network: NetworkType;
-    timeout?: number;
-    commitment?: 'processed' | 'confirmed' | 'finalized';
-}
-
-class AddressValidator {
-    static validate(address: string, label: string): void {
-        try {
-            new PublicKey(address);
-        } catch (error) {
-            throw new Error(`Invalid ${label}: ${address}`);
-        }
-    }
-}
-
-const NETWORK_CONFIGS: Record<NetworkType, NetworkConfig> = {
-    mainnet: {
-        subscriptionManagerAddress: 'AnPhQYFcJEPBG2JTrvaNne85rXufC1Q97bu29YaWvKDs',
-        nftTokenAddress: '3sH789kj7yAtmuJKJQqKnxdWd9Q28qfN1DzkeFZd7ty7',
-        fxnMintAddress: '34dcPojKodMA2GkH2E9jjNi3gheweipGDaUAgoX73dK8',
-        rpcEndpoint: 'https://api.mainnet-beta.solana.com',
-        wsEndpoint: 'wss://api.mainnet-beta.solana.com'
-    },
-    testnet: {
-        subscriptionManagerAddress: 'AnPhQYFcJEPBG2JTrvaNne85rXufC1Q97bu29YaWvKDs',
-        nftTokenAddress: '3sH789kj7yAtmuJKJQqKnxdWd9Q28qfN1DzkeFZd7ty7',
-        fxnMintAddress: '34dcPojKodMA2GkH2E9jjNi3gheweipGDaUAgoX73dK8',
-        rpcEndpoint: 'https://api.testnet.solana.com',
-        wsEndpoint: 'wss://api.testnet.solana.com'
-    },
-    devnet: {
-        subscriptionManagerAddress: 'AnPhQYFcJEPBG2JTrvaNne85rXufC1Q97bu29YaWvKDs',
-        nftTokenAddress: '3sH789kj7yAtmuJKJQqKnxdWd9Q28qfN1DzkeFZd7ty7',
-        fxnMintAddress: '34dcPojKodMA2GkH2E9jjNi3gheweipGDaUAgoX73dK8',
-        rpcEndpoint: 'https://api.devnet.solana.com',
-        wsEndpoint: 'wss://api.devnet.solana.com'
-    }
-};
+import { SDKConfig, NetworkConfig } from './types';
+import { NETWORK_CONFIGS } from './networks';
+import { AddressValidator } from './validator';
 
 export class ConfigurationManager {
     private static instance: ConfigurationManager;
@@ -74,7 +26,12 @@ export class ConfigurationManager {
 
     public static getInstance(): ConfigurationManager {
         if (!ConfigurationManager.instance) {
-            throw new Error('ConfigurationManager must be initialized before use');
+            // Fallback to devnet config for backward compatibility
+            return ConfigurationManager.initialize({
+                network: 'devnet',
+                timeout: 30000,
+                commitment: 'confirmed'
+            });
         }
         return ConfigurationManager.instance;
     }
@@ -105,12 +62,10 @@ export class ConfigurationManager {
     }
 }
 
-// Export singleton instance creator
 export const initializeConfig = (config: SDKConfig): ConfigurationManager => {
     return ConfigurationManager.initialize(config);
 };
 
-// Export config getter
 export const getConfig = (): ConfigurationManager => {
     return ConfigurationManager.getInstance();
 };
