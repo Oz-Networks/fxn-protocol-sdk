@@ -1,19 +1,19 @@
-# FXN Protocol + AutoGen Integration Example
+# FXN Protocol + AG2 Integration Example
 
-This repository demonstrates an integration between the [FXN Protocol](https://fxn.world) and [AutoGen](https://microsoft.github.io/autogen/) (AG2), showcasing how to create an AI agent swarm that processes receipts for subscribed users.
+This repository demonstrates an integration between the [FXN Protocol](https://fxn.world) and [AG2](https://docs.ag2.ai/docs/Home) (Formerly AutoGen), showcasing how to create an AI agent swarm that processes receipts for subscribed users.
 
 ## Overview
 
 This example implements a bookkeeping swarm that:
 1. Connects to the FXN Protocol to manage subscriptions
-2. Uses AutoGen's multi-agent system to process receipt images
+2. Uses AG2's multi-agent system to process receipt images
 3. Demonstrates provider-subscriber communication patterns
 4. Shows how to handle async workflows with Python and TypeScript
 
 ### Components
 
 - **FXN Protocol SDK**: Handles subscription management and provider-subscriber communication
-- **AutoGen Agents**:
+- **AG2 Agents**:
   - `image_analyzer`: Processes receipt images using GPT-4V
   - `data_processor`: Standardizes and categorizes receipt data
   - `spreadsheet_manager`: Prepares data for storage
@@ -97,7 +97,7 @@ pytest -v tests/ --log-cli-level=DEBUG
 1. The swarm runs as a FXN Protocol provider, polling for active subscribers
 2. When a subscriber is found, the swarm makes an offer to process receipts
 3. Subscribers can respond with receipt processing requests
-4. The AutoGen agent swarm processes the receipt:
+4. The AG2 agent swarm processes the receipt:
     - Analyzes the receipt image using GPT-4V
     - Extracts and standardizes the data
     - Prepares the data for storage
@@ -107,7 +107,7 @@ pytest -v tests/ --log-cli-level=DEBUG
 
 ```
 ┌─────────────────┐     ┌──────────────┐     ┌────────────────┐
-│  FXN Protocol   │←────│ Bookkeeping  │────→│ AutoGen Agents │
+│  FXN Protocol   │←────│ Bookkeeping  │────→│ AG2 Agents     │
 │     Server      │     │    Swarm     │     │                │
 └─────────────────┘     └──────────────┘     └────────────────┘
          ↑                     ↓
@@ -132,11 +132,11 @@ MIT license.
 
 This is an example integration and may need additional security and error handling for production use. It demonstrates basic concepts of:
 - FXN Protocol subscription management
-- AutoGen multi-agent systems
+- AG2 multi-agent systems
 - Async Python with aiohttp
 - TypeScript/Node.js services
 - Docker containerization
 
 For more information:
 - [FXN Protocol Documentation](https://fxn.world)
-- [AutoGen Documentation](https://microsoft.github.io/autogen/)
+- [AG2 Documentation](https://docs.ag2.ai/docs/Home)
