@@ -277,59 +277,46 @@ export class SolanaAdapter {
 
     async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
         try {
-            // 1. Get all subscriber lists first
+            // 1. First get all subscriber lists
             const allSubscriberLists = await this.program.account.subscribersList.all();
             console.log(`Found ${allSubscriberLists.length} subscriber lists`);
 
             const userSubscriptions = [];
 
             for (const list of allSubscriberLists) {
-                // Get the list PDA for debugging
-                console.log('\nChecking subscribers list:', list.publicKey.toString());
-                console.log('Subscribers in list:', list.account.subscribers.map(s => s.toString()));
-
                 // Check if our user is in this list
                 const isSubscriber = list.account.subscribers.some(
                     sub => sub.toString() === userPublicKey.toString()
                 );
 
                 if (isSubscriber) {
-                    // Get the original data provider address from the PDA
-                    // The list PDA was created with [b"subscribers", data_provider.key().as_ref()]
-                    console.log('Found user in this list, extracting data provider...');
+                    // Extract the data provider address from the list's address
+                    // We know the PDA is [b"subscribers", data_provider.key()]
+                    // so list.publicKey must be the data provider
+                    const dataProvider = list.publicKey;
 
-                    // Important: We need to recover the data provider's address
-                    // The list PDA is created with [b"subscribers", data_provider.key()]
-                    // So the data provider's address should be the account that this PDA is derived from
-                    const [expectedListPDA, _] = PublicKey.findProgramAddressSync(
-                        [Buffer.from("subscribers"), list.publicKey.toBuffer()],
-                        this.program.programId
-                    );
-
-                    console.log('Data Provider:', expectedListPDA.toString());
-
-                    // Now derive the subscription PDA
+                    // Now derive the subscription PDA correctly
                     const [subscriptionPDA] = PublicKey.findProgramAddressSync(
                         [
                             Buffer.from("subscription"),
                             userPublicKey.toBuffer(),
-                            expectedListPDA.toBuffer()
+                            dataProvider.toBuffer()
                         ],
                         this.program.programId
                     );
 
-                    console.log('Attempting to fetch subscription at PDA:', subscriptionPDA.toString());
+                    console.log('Checking subscription for data provider:', dataProvider.toString());
+                    console.log('At PDA:', subscriptionPDA.toString());
 
                     try {
                         const subscription = await this.program.account.subscription.fetch(
                             subscriptionPDA
                         );
-                        console.log('Found subscription:', subscription);
 
                         userSubscriptions.push({
                             subscription,
                             subscriptionPDA,
-                            dataProvider: expectedListPDA,
+                            dataProvider,
                             status: this.getSubscriptionStatus(subscription.endTime)
                         });
                     } catch (e: any) {
@@ -338,9 +325,8 @@ export class SolanaAdapter {
                 }
             }
 
-            console.log(`Found ${userSubscriptions.length} total subscriptions`);
             return userSubscriptions;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error in getAllSubscriptionsForUser:', error);
             throw this.handleError(error);
         }
