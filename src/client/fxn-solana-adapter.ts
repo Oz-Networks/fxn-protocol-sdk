@@ -277,38 +277,68 @@ export class SolanaAdapter {
 
     async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
         try {
-            // Get all subscription accounts directly
-            const subscriptionAccounts = await this.program.account.subscription.all();
-            console.log('Total subscription accounts found:', subscriptionAccounts.length);
+            // 1. Get all subscriber lists first
+            const allSubscriberLists = await this.program.account.subscribersList.all();
+            console.log(`Found ${allSubscriberLists.length} subscriber lists`);
 
             const userSubscriptions = [];
 
-            for (const subAccount of subscriptionAccounts) {
-                // Check if this subscription PDA matches our expected format
-                const [expectedPDA] = PublicKey.findProgramAddressSync(
-                    [
-                        Buffer.from("subscription"),
-                        userPublicKey.toBuffer(),
-                        // The data provider should be extractable from the account data
-                        // We might need to add logging here to see the actual account structure
-                    ],
-                    this.program.programId
+            for (const list of allSubscriberLists) {
+                // Get the list PDA for debugging
+                console.log('\nChecking subscribers list:', list.publicKey.toString());
+                console.log('Subscribers in list:', list.account.subscribers.map(s => s.toString()));
+
+                // Check if our user is in this list
+                const isSubscriber = list.account.subscribers.some(
+                    sub => sub.toString() === userPublicKey.toString()
                 );
 
-                console.log('Checking subscription account:', subAccount.publicKey.toString());
-                console.log('Account data:', subAccount.account);
+                if (isSubscriber) {
+                    // Get the original data provider address from the PDA
+                    // The list PDA was created with [b"subscribers", data_provider.key().as_ref()]
+                    console.log('Found user in this list, extracting data provider...');
 
-                if (subAccount.publicKey.equals(expectedPDA)) {
-                    // This subscription belongs to our user
-                    userSubscriptions.push({
-                        subscription: subAccount.account,
-                        subscriptionPDA: subAccount.publicKey,
-                        // We'll need to determine how to get the data provider
-                        status: this.getSubscriptionStatus(subAccount.account.endTime)
-                    });
+                    // Important: We need to recover the data provider's address
+                    // The list PDA is created with [b"subscribers", data_provider.key()]
+                    // So the data provider's address should be the account that this PDA is derived from
+                    const [expectedListPDA, _] = PublicKey.findProgramAddressSync(
+                        [Buffer.from("subscribers"), list.publicKey.toBuffer()],
+                        this.program.programId
+                    );
+
+                    console.log('Data Provider:', expectedListPDA.toString());
+
+                    // Now derive the subscription PDA
+                    const [subscriptionPDA] = PublicKey.findProgramAddressSync(
+                        [
+                            Buffer.from("subscription"),
+                            userPublicKey.toBuffer(),
+                            expectedListPDA.toBuffer()
+                        ],
+                        this.program.programId
+                    );
+
+                    console.log('Attempting to fetch subscription at PDA:', subscriptionPDA.toString());
+
+                    try {
+                        const subscription = await this.program.account.subscription.fetch(
+                            subscriptionPDA
+                        );
+                        console.log('Found subscription:', subscription);
+
+                        userSubscriptions.push({
+                            subscription,
+                            subscriptionPDA,
+                            dataProvider: expectedListPDA,
+                            status: this.getSubscriptionStatus(subscription.endTime)
+                        });
+                    } catch (e) {
+                        console.log(`No subscription found at ${subscriptionPDA.toString()}: ${e.message}`);
+                    }
                 }
             }
 
+            console.log(`Found ${userSubscriptions.length} total subscriptions`);
             return userSubscriptions;
         } catch (error) {
             console.error('Error in getAllSubscriptionsForUser:', error);
