@@ -332,7 +332,7 @@ export class SolanaAdapter {
                             dataProvider: expectedListPDA,
                             status: this.getSubscriptionStatus(subscription.endTime)
                         });
-                    } catch (e) {
+                    } catch (e: any) {
                         console.log(`No subscription found at ${subscriptionPDA.toString()}: ${e.message}`);
                     }
                 }
