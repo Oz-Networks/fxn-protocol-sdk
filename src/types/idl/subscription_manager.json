@@ -8,6 +8,96 @@
   },
   "instructions": [
     {
+      "name": "add_subscriptions_lists",
+      "discriminator": [
+        75,
+        92,
+        81,
+        46,
+        141,
+        174,
+        174,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "subscriber",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "data_provider",
+          "writable": true
+        },
+        {
+          "name": "my_subscriptions",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  121,
+                  95,
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  112,
+                  116,
+                  105,
+                  111,
+                  110,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "subscriber"
+              }
+            ]
+          }
+        },
+        {
+          "name": "subscribers_list",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  98,
+                  101,
+                  114,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "data_provider"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "cancel_subscription",
       "discriminator": [
         60,
@@ -258,6 +348,12 @@
                 "value": [
                   115,
                   116,
+                  97,
+                  116,
+                  101,
+                  32,
+                  115,
+                  116,
                   111,
                   114,
                   97,
@@ -426,6 +522,17 @@
           "writable": true
         },
         {
+          "name": "data_provider_payment_ata"
+        },
+        {
+          "name": "subscriber_payment_ata",
+          "writable": true
+        },
+        {
+          "name": "owner_payment_ata",
+          "writable": true
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
@@ -435,6 +542,9 @@
         },
         {
           "name": "nft_token_account"
+        },
+        {
+          "name": "dp_fee_account"
         }
       ],
       "args": [
@@ -673,34 +783,6 @@
           }
         },
         {
-          "name": "subscribers_list",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  117,
-                  98,
-                  115,
-                  99,
-                  114,
-                  105,
-                  98,
-                  101,
-                  114,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "data_provider"
-              }
-            ]
-          }
-        },
-        {
           "name": "owner",
           "writable": true
         },
@@ -755,6 +837,19 @@
         243,
         172,
         176
+      ]
+    },
+    {
+      "name": "MySubscriptions",
+      "discriminator": [
+        180,
+        231,
+        40,
+        166,
+        107,
+        41,
+        82,
+        49
       ]
     },
     {
@@ -988,6 +1083,20 @@
           {
             "name": "new_fee_per_day",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MySubscriptions",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "providers",
+            "type": {
+              "vec": "pubkey"
+            }
           }
         ]
       }

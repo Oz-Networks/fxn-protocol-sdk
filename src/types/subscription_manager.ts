@@ -14,6 +14,96 @@ export type SubscriptionManager = {
   },
   "instructions": [
     {
+      "name": "addSubscriptionsLists",
+      "discriminator": [
+        75,
+        92,
+        81,
+        46,
+        141,
+        174,
+        174,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "subscriber",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "dataProvider",
+          "writable": true
+        },
+        {
+          "name": "mySubscriptions",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  121,
+                  95,
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  112,
+                  116,
+                  105,
+                  111,
+                  110,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "subscriber"
+              }
+            ]
+          }
+        },
+        {
+          "name": "subscribersList",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  98,
+                  101,
+                  114,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "dataProvider"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "cancelSubscription",
       "discriminator": [
         60,
@@ -264,6 +354,12 @@ export type SubscriptionManager = {
                 "value": [
                   115,
                   116,
+                  97,
+                  116,
+                  101,
+                  32,
+                  115,
+                  116,
                   111,
                   114,
                   97,
@@ -432,6 +528,17 @@ export type SubscriptionManager = {
           "writable": true
         },
         {
+          "name": "dataProviderPaymentAta"
+        },
+        {
+          "name": "subscriberPaymentAta",
+          "writable": true
+        },
+        {
+          "name": "ownerPaymentAta",
+          "writable": true
+        },
+        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         },
@@ -441,6 +548,9 @@ export type SubscriptionManager = {
         },
         {
           "name": "nftTokenAccount"
+        },
+        {
+          "name": "dpFeeAccount"
         }
       ],
       "args": [
@@ -679,34 +789,6 @@ export type SubscriptionManager = {
           }
         },
         {
-          "name": "subscribersList",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  117,
-                  98,
-                  115,
-                  99,
-                  114,
-                  105,
-                  98,
-                  101,
-                  114,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "dataProvider"
-              }
-            ]
-          }
-        },
-        {
           "name": "owner",
           "writable": true
         },
@@ -761,6 +843,19 @@ export type SubscriptionManager = {
         243,
         172,
         176
+      ]
+    },
+    {
+      "name": "mySubscriptions",
+      "discriminator": [
+        180,
+        231,
+        40,
+        166,
+        107,
+        41,
+        82,
+        49
       ]
     },
     {
@@ -994,6 +1089,20 @@ export type SubscriptionManager = {
           {
             "name": "newFeePerDay",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mySubscriptions",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "providers",
+            "type": {
+              "vec": "pubkey"
+            }
           }
         ]
       }

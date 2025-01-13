@@ -78,6 +78,10 @@ export interface CreateSubscriptionParams {
     nftTokenAccount: PublicKey;
 }
 
+export interface SubscriptionListParams {
+    dataProvider: PublicKey;
+}
+
 export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
     subscription: SubscriptionAccount;
@@ -129,7 +133,7 @@ export class SolanaAdapter {
         }
     }
 
-    async createSubscription(params: CreateSubscriptionParams): Promise<TransactionSignature> {
+    async createSubscription(params: CreateSubscriptionParams): Promise<[TransactionSignature, TransactionSignature]> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
         }
@@ -164,7 +168,6 @@ export class SolanaAdapter {
                     subscriber: subscriber,
                     dataProvider: params.dataProvider,
                     subscription: pdas.subscriptionPDA,
-                    subscribersList: pdas.subscribersListPDA,
                     owner: state.owner,
                     dataProviderPaymentAta: dp_payment_ata,
                     subscriberPaymentAta: subscriber_payment_ata,
@@ -175,10 +178,38 @@ export class SolanaAdapter {
                     dpFeeAccount: pdas.dataProviderFeePDA,
                 } as any)
                 .rpc();
+            
+            const subscriptionListTxHash = await this.subscriptionLists({ dataProvider: params.dataProvider });
+            
+            return [txHash, subscriptionListTxHash];
+        } catch (error) {
+            console.error('Error creating subscription:', error);
+            throw this.handleError(error);
+        }
+    }
+
+    async subscriptionLists(params: SubscriptionListParams): Promise<TransactionSignature> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+        try {
+            const subscriber = this.provider.wallet.publicKey;
+            const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
+
+            const txHash = await this.program.methods
+                .addSubscriptionsLists()
+                .accounts({
+                    subscriber: subscriber,
+                    dataProvider: params.dataProvider,
+                    mySubscriptions: pdas.mySubscriptionsPDA,
+                    subscribersList: pdas.subscribersListPDA,
+                    systemProgram: SystemProgram.programId,
+                } as any)
+                .rpc();
 
             return txHash;
         } catch (error) {
-            console.error('Error creating subscription:', error);
+            console.error('Error creating / adding to subscription lists:', error);
             throw this.handleError(error);
         }
     }
@@ -459,6 +490,7 @@ export class SolanaAdapter {
         subscriptionPDA: PublicKey;
         subscribersListPDA: PublicKey;
         dataProviderFeePDA: PublicKey;
+        mySubscriptionsPDA: PublicKey;
     } {
         const [statePDA] = PublicKey.findProgramAddressSync(
             [Buffer.from("state storage")],
@@ -489,12 +521,18 @@ export class SolanaAdapter {
             this.program.programId
         );
 
+        const [mySubscriptionsPDA] = PublicKey.findProgramAddressSync(
+            [Buffer.from("my_subscriptions"), subscriber.toBuffer()],
+            this.program.programId
+        );
+
         return {
             statePDA,
             qualityPDA,
             subscriptionPDA,
             subscribersListPDA,
             dataProviderFeePDA,
+            mySubscriptionsPDA,
         };
     }
 
