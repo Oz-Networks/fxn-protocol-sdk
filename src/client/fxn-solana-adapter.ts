@@ -2,20 +2,15 @@
 
 import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
 import {
-    Connection,
     PublicKey,
     SystemProgram,
-    LAMPORTS_PER_SOL,
-    TransactionSignature, Signer
+    TransactionSignature
 } from '@solana/web3.js';
 import {
-    createMint,
-    getAssociatedTokenAddress,
-    createAssociatedTokenAccount,
-    mintTo
+    getAssociatedTokenAddress
 } from '@solana/spl-token';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import type { SubscriptionManager } from '../types/subscription_manager';
+import type { SubscriptionManager } from '@/types/subscription_manager';
 import IDL from '../types/idl/subscription_manager.json';
 import { config } from '../config/index';
 
@@ -47,6 +42,13 @@ export interface SubscriberDetails {
         recipient: string;
     };
     status: 'active' | 'expired' | 'expiring_soon';
+}
+
+export interface SubscriptionDetails {
+    dataProvider: PublicKey;
+    subscription: PublicKey;
+    endTime: BN;
+    recipient: string;
 }
 
 export interface SetDataProviderFeeParams {
@@ -81,6 +83,13 @@ export interface CreateSubscriptionParams {
 export interface SubscriptionListParams {
     dataProvider: PublicKey;
 }
+
+interface _SubscriptionListParams {
+    subscriber: PublicKey,
+    dataProvider: PublicKey,
+    mySubscriptionsPDA: PublicKey,
+    subscribersListPDA: PublicKey,
+} 
 
 export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
@@ -196,22 +205,98 @@ export class SolanaAdapter {
             const subscriber = this.provider.wallet.publicKey;
             const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
 
-            const txHash = await this.program.methods
-                .addSubscriptionsLists()
-                .accounts({
-                    subscriber: subscriber,
-                    dataProvider: params.dataProvider,
-                    mySubscriptions: pdas.mySubscriptionsPDA,
-                    subscribersList: pdas.subscribersListPDA,
-                    systemProgram: SystemProgram.programId,
-                } as any)
-                .rpc();
+            const mySubscriptionsAccount = await this.provider.connection.getAccountInfo(pdas.mySubscriptionsPDA);
+            const subscribersListAccount = await this.provider.connection.getAccountInfo(pdas.subscribersListPDA);
+
+            const listParams: _SubscriptionListParams= {
+                subscriber: subscriber,
+                dataProvider: params.dataProvider,
+                mySubscriptionsPDA: pdas.mySubscriptionsPDA,
+                subscribersListPDA: pdas.subscribersListPDA,
+            }
+
+            let txHash: TransactionSignature;
+            if (!!mySubscriptionsAccount && !!subscribersListAccount) {
+                if (mySubscriptionsAccount.data.length < 8 + 4 + (200 * 32) || subscribersListAccount.data.length < 8 + 4 + (200 * 32)) {
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                } else {
+                    txHash = await this.addSubscriptionsLists(listParams);
+                }
+            } else {
+                if (!!mySubscriptionsAccount) {
+                    await this.initSubscribersList(listParams);
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                } else if (!!subscribersListAccount) {
+                    await this.initMySubscriptionsList(listParams);
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                } else {
+                    await this.initMySubscriptionsList(listParams);
+                    await this.initSubscribersList(listParams);
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                }
+            }
 
             return txHash;
         } catch (error) {
             console.error('Error creating / adding to subscription lists:', error);
             throw this.handleError(error);
         }
+    }
+
+    async reallocSubscriptionLists(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .reallocAddSubscriptionsLists()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
+    }
+
+    async initMySubscriptionsList(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .initMySubscriptionsList()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
+    }
+
+    async initSubscribersList(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .initSubscribersList()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
+    }
+
+    async addSubscriptionsLists(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .addSubscriptionsLists()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
     }
 
     getSubscriptionStatus(endTime: BN): 'active' | 'expired' | 'expiring_soon' {
@@ -306,29 +391,24 @@ export class SolanaAdapter {
         }
     }
 
-    async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]> {
+    async getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionDetails[]> {
         try {
+            // Get the mySubscriptions PDA
+            const [mySubscriptionsPDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("my_subscriptions"), userPublicKey.toBuffer()],
+                this.program.programId
+            );
 
-            // Get all subscription accounts
-            const subscriptionAccounts = await this.program.account.subscription.all();
-            // Get all subscriber lists
-            const subscriberLists = await this.program.account.subscribersList.all();
-            const userSubscriptions = [];
-            // For each subscriber list
-            for (const list of subscriberLists) {
-                // Extract data provider from the subscriber list PDA
-                // The PDA is created with [b"subscribers", data_provider.key().as_ref()]
-                const [listPDA, _] = PublicKey.findProgramAddressSync(
-                    [Buffer.from("subscribers"), list.publicKey.toBuffer()],
-                    this.program.programId
-                );
+            // Fetch the mySubscriptions account
+            const mySubscriptions = await this.program.account.mySubscriptions.fetch(
+                mySubscriptionsPDA
+            );
 
-                // If this matches our list's PDA, we found a data provider
-                if (listPDA.equals(list.publicKey)) {
-                    const dataProvider = list.publicKey;
-
-                    // Calculate what our subscription PDA would be with this provider
-                    const [expectedSubPDA] = PublicKey.findProgramAddressSync(
+            // Map over each data provider and get their subscription details
+            const subscriptions = await Promise.all(
+                mySubscriptions.providers.map(async (dataProvider) => {
+                    // Calculate subscription PDA for this provider
+                    const [subscriptionPDA] = PublicKey.findProgramAddressSync(
                         [
                             Buffer.from("subscription"),
                             userPublicKey.toBuffer(),
@@ -337,30 +417,41 @@ export class SolanaAdapter {
                         this.program.programId
                     );
 
-                    // Look for this subscription in our accounts
-                    const subscription = subscriptionAccounts.find(acc =>
-                        acc.publicKey.equals(expectedSubPDA)
-                    );
+                    try {
+                        // Fetch the subscription account
+                        const subscription = await this.program.account.subscription.fetch(
+                            subscriptionPDA
+                        );
 
-                    if (subscription) {
-                        userSubscriptions.push({
-                            subscription: subscription.account,
-                            subscriptionPDA: subscription.publicKey,
+                        return {
                             dataProvider,
-                            status: this.getSubscriptionStatus(subscription.account.endTime)
-                        });
+                            subscription: subscriptionPDA,
+                            endTime: subscription.endTime,
+                            recipient: subscription.recipient,
+                            status: this.getSubscriptionStatus(subscription.endTime)
+                        } as SubscriptionDetails;
+                    } catch (error) {
+                        console.error(`Error fetching subscription for provider ${dataProvider.toString()}:`, error);
+                        return null;
                     }
-                }
-            }
-            // Filter to only active subscriptions
-            return userSubscriptions.filter(sub =>
-                sub.subscription.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
+                })
             );
+
+            // Filter out null values (failed fetches) and expired subscriptions
+            // Sort by end time descending (most recent first)
+            return subscriptions
+                .filter((sub): sub is SubscriptionDetails =>
+                    sub !== null &&
+                    sub.endTime.gt(new BN(Math.floor(Date.now() / 1000)))
+                )
+                .sort((a, b) => b.endTime.sub(a.endTime).toNumber());
+
         } catch (error) {
-            console.error('Error in getAllSubscriptionsForUser:', error);
+            console.error('Error fetching user subscriptions:', error);
             throw this.handleError(error);
         }
     }
+
     async renewSubscription(params: RenewParams): Promise<TransactionSignature> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");

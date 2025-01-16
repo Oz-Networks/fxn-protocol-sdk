@@ -332,6 +332,125 @@ export type SubscriptionManager = {
       }
     },
     {
+      "name": "initMySubscriptionsList",
+      "discriminator": [
+        16,
+        123,
+        17,
+        204,
+        44,
+        17,
+        112,
+        202
+      ],
+      "accounts": [
+        {
+          "name": "subscriber",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "dataProvider",
+          "writable": true
+        },
+        {
+          "name": "mySubscriptions",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  121,
+                  95,
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  112,
+                  116,
+                  105,
+                  111,
+                  110,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "subscriber"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initSubscribersList",
+      "discriminator": [
+        125,
+        114,
+        126,
+        189,
+        97,
+        188,
+        11,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "subscriber",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "dataProvider",
+          "writable": true
+        },
+        {
+          "name": "subscribersList",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  98,
+                  101,
+                  114,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "dataProvider"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "initialize",
       "discriminator": [
         175,
@@ -432,6 +551,96 @@ export type SubscriptionManager = {
           "name": "payer",
           "writable": true,
           "signer": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reallocAddSubscriptionsLists",
+      "discriminator": [
+        99,
+        160,
+        45,
+        253,
+        23,
+        118,
+        22,
+        205
+      ],
+      "accounts": [
+        {
+          "name": "subscriber",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "dataProvider",
+          "writable": true
+        },
+        {
+          "name": "mySubscriptions",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  121,
+                  95,
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  112,
+                  116,
+                  105,
+                  111,
+                  110,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "subscriber"
+              }
+            ]
+          }
+        },
+        {
+          "name": "subscribersList",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  98,
+                  101,
+                  114,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "dataProvider"
+              }
+            ]
+          }
         },
         {
           "name": "systemProgram",
