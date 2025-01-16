@@ -84,6 +84,13 @@ export interface SubscriptionListParams {
     dataProvider: PublicKey;
 }
 
+interface _SubscriptionListParams {
+    subscriber: PublicKey,
+    dataProvider: PublicKey,
+    mySubscriptionsPDA: PublicKey,
+    subscribersListPDA: PublicKey,
+} 
+
 export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
     subscription: SubscriptionAccount;
@@ -198,22 +205,98 @@ export class SolanaAdapter {
             const subscriber = this.provider.wallet.publicKey;
             const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
 
-            const txHash = await this.program.methods
-                .addSubscriptionsLists()
-                .accounts({
-                    subscriber: subscriber,
-                    dataProvider: params.dataProvider,
-                    mySubscriptions: pdas.mySubscriptionsPDA,
-                    subscribersList: pdas.subscribersListPDA,
-                    systemProgram: SystemProgram.programId,
-                } as any)
-                .rpc();
+            const mySubscriptionsAccount = await this.provider.connection.getAccountInfo(pdas.mySubscriptionsPDA);
+            const subscribersListAccount = await this.provider.connection.getAccountInfo(pdas.subscribersListPDA);
+
+            const listParams: _SubscriptionListParams= {
+                subscriber: subscriber,
+                dataProvider: params.dataProvider,
+                mySubscriptionsPDA: pdas.mySubscriptionsPDA,
+                subscribersListPDA: pdas.subscribersListPDA,
+            }
+
+            let txHash: TransactionSignature;
+            if (!!mySubscriptionsAccount && !!subscribersListAccount) {
+                if (mySubscriptionsAccount.data.length < 8 + 4 + (200 * 32) || subscribersListAccount.data.length < 8 + 4 + (200 * 32)) {
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                } else {
+                    txHash = await this.addSubscriptionsLists(listParams);
+                }
+            } else {
+                if (!!mySubscriptionsAccount) {
+                    await this.initSubscribersList(listParams);
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                } else if (!!subscribersListAccount) {
+                    await this.initMySubscriptionsList(listParams);
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                } else {
+                    await this.initMySubscriptionsList(listParams);
+                    await this.initSubscribersList(listParams);
+                    txHash = await this.reallocSubscriptionLists(listParams);
+                }
+            }
 
             return txHash;
         } catch (error) {
             console.error('Error creating / adding to subscription lists:', error);
             throw this.handleError(error);
         }
+    }
+
+    async reallocSubscriptionLists(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .reallocAddSubscriptionsLists()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
+    }
+
+    async initMySubscriptionsList(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .initMySubscriptionsList()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
+    }
+
+    async initSubscribersList(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .initSubscribersList()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
+    }
+
+    async addSubscriptionsLists(params: _SubscriptionListParams): Promise<TransactionSignature> {
+        const tx = await this.program.methods
+        .addSubscriptionsLists()
+        .accounts({
+            subscriber: params.subscriber,
+            dataProvider: params.dataProvider,
+            mySubscriptions: params.mySubscriptionsPDA,
+            subscribersList: params.subscribersListPDA,
+            systemProgram: SystemProgram.programId,
+        } as any)
+        .rpc();
+        return tx;
     }
 
     getSubscriptionStatus(endTime: BN): 'active' | 'expired' | 'expiring_soon' {
