@@ -151,7 +151,7 @@ export class SolanaAdapter {
                  this.program.programId
               );
               const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
-               [Buffer.from("fee"), dataProvider.toBuffer()],
+               [Buffer.from("data_provider_fee"), dataProvider.toBuffer()],
                this.program.programId
              );
 
@@ -203,7 +203,7 @@ export class SolanaAdapter {
                  this.program.programId
               );
               const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
-               [Buffer.from("fee"), dataProvider.toBuffer()],
+               [Buffer.from("data_provider_fee"), dataProvider.toBuffer()],
                this.program.programId
              );
 
@@ -303,7 +303,7 @@ export class SolanaAdapter {
         try {
             const dataProvider = this.provider.wallet.publicKey;
             const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
-                [Buffer.from("fee"), dataProvider.toBuffer()],
+                [Buffer.from("data_provider_fee"), dataProvider.toBuffer()],
                 this.program.programId
             );
  
