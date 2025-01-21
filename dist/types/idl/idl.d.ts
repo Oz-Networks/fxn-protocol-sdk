@@ -63,6 +63,17 @@ export declare const IDL: {
         name: string;
         type: {
             kind: string;
+            fields: {
+                name: string;
+                type: {
+                    vec: string;
+                };
+            }[];
+        };
+    } | {
+        name: string;
+        type: {
+            kind: string;
             fields: ({
                 name: string;
                 type: string;
@@ -76,17 +87,6 @@ export declare const IDL: {
                     };
                 };
             })[];
-        };
-    } | {
-        name: string;
-        type: {
-            kind: string;
-            fields: {
-                name: string;
-                type: {
-                    vec: string;
-                };
-            }[];
         };
     })[];
 };

@@ -8,6 +8,134 @@
     },
     "instructions": [
         {
+            "name": "add_subscriptions_lists",
+            "discriminator": [
+                75,
+                92,
+                81,
+                46,
+                141,
+                174,
+                174,
+                37
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true
+                },
+                {
+                    "name": "my_subscriptions",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    109,
+                                    121,
+                                    95,
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "subscribers_list",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "approve_request",
+            "discriminator": [
+                89,
+                68,
+                167,
+                104,
+                93,
+                25,
+                178,
+                205
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "subscription_requests",
+                    "writable": true
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": [
+                {
+                    "name": "index",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
             "name": "cancel_subscription",
             "discriminator": [
                 60,
@@ -97,6 +225,110 @@
                 {
                     "name": "quality",
                     "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "edit_agent_data",
+            "discriminator": [
+                108,
+                105,
+                209,
+                37,
+                34,
+                29,
+                170,
+                139
+            ],
+            "accounts": [
+                {
+                    "name": "agent_registration",
+                    "writable": true
+                },
+                {
+                    "name": "data_provider_fee",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    100,
+                                    97,
+                                    116,
+                                    97,
+                                    95,
+                                    112,
+                                    114,
+                                    111,
+                                    118,
+                                    105,
+                                    100,
+                                    101,
+                                    114,
+                                    95,
+                                    102,
+                                    101,
+                                    101
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "restrict_subscriptions",
+                    "type": "bool"
+                },
+                {
+                    "name": "text",
+                    "type": "bool"
+                },
+                {
+                    "name": "photo",
+                    "type": "bool"
+                },
+                {
+                    "name": "video",
+                    "type": "bool"
+                },
+                {
+                    "name": "telegram",
+                    "type": "bool"
+                },
+                {
+                    "name": "twitter",
+                    "type": "bool"
+                },
+                {
+                    "name": "discord",
+                    "type": "bool"
+                },
+                {
+                    "name": "fee",
+                    "type": "u64"
                 }
             ]
         },
@@ -236,6 +468,125 @@
             }
         },
         {
+            "name": "init_my_subscriptions_list",
+            "discriminator": [
+                16,
+                123,
+                17,
+                204,
+                44,
+                17,
+                112,
+                202
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true
+                },
+                {
+                    "name": "my_subscriptions",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    109,
+                                    121,
+                                    95,
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "init_subscribers_list",
+            "discriminator": [
+                125,
+                114,
+                126,
+                189,
+                97,
+                188,
+                11,
+                29
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true
+                },
+                {
+                    "name": "subscribers_list",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": []
+        },
+        {
             "name": "initialize",
             "discriminator": [
                 175,
@@ -256,6 +607,12 @@
                             {
                                 "kind": "const",
                                 "value": [
+                                    115,
+                                    116,
+                                    97,
+                                    116,
+                                    101,
+                                    32,
                                     115,
                                     116,
                                     111,
@@ -337,6 +694,269 @@
                 }
             ],
             "args": []
+        },
+        {
+            "name": "realloc_add_subscriptions_lists",
+            "discriminator": [
+                99,
+                160,
+                45,
+                253,
+                23,
+                118,
+                22,
+                205
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true
+                },
+                {
+                    "name": "my_subscriptions",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    109,
+                                    121,
+                                    95,
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "subscribers_list",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": []
+        },
+        {
+            "name": "register_agent",
+            "discriminator": [
+                135,
+                157,
+                66,
+                195,
+                2,
+                113,
+                175,
+                30
+            ],
+            "accounts": [
+                {
+                    "name": "agent_registration",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    97,
+                                    103,
+                                    101,
+                                    110,
+                                    116,
+                                    95,
+                                    114,
+                                    101,
+                                    103,
+                                    105,
+                                    115,
+                                    116,
+                                    114,
+                                    97,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "subscription_requests",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    95,
+                                    114,
+                                    101,
+                                    113,
+                                    117,
+                                    101,
+                                    115,
+                                    116,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "data_provider_fee",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    100,
+                                    97,
+                                    116,
+                                    97,
+                                    95,
+                                    112,
+                                    114,
+                                    111,
+                                    118,
+                                    105,
+                                    100,
+                                    101,
+                                    114,
+                                    95,
+                                    102,
+                                    101,
+                                    101
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "restrict_subscriptions",
+                    "type": "bool"
+                },
+                {
+                    "name": "text",
+                    "type": "bool"
+                },
+                {
+                    "name": "photo",
+                    "type": "bool"
+                },
+                {
+                    "name": "video",
+                    "type": "bool"
+                },
+                {
+                    "name": "telegram",
+                    "type": "bool"
+                },
+                {
+                    "name": "twitter",
+                    "type": "bool"
+                },
+                {
+                    "name": "discord",
+                    "type": "bool"
+                },
+                {
+                    "name": "fee",
+                    "type": "u64"
+                }
+            ]
         },
         {
             "name": "renew_subscription",
@@ -426,6 +1046,17 @@
                     "writable": true
                 },
                 {
+                    "name": "data_provider_payment_ata"
+                },
+                {
+                    "name": "subscriber_payment_ata",
+                    "writable": true
+                },
+                {
+                    "name": "owner_payment_ata",
+                    "writable": true
+                },
+                {
                     "name": "system_program",
                     "address": "11111111111111111111111111111111"
                 },
@@ -435,6 +1066,10 @@
                 },
                 {
                     "name": "nft_token_account"
+                },
+                {
+                    "name": "dp_fee_account",
+                    "writable": true
                 }
             ],
             "args": [
@@ -451,6 +1086,73 @@
                     "type": "u8"
                 }
             ]
+        },
+        {
+            "name": "request_subscription",
+            "discriminator": [
+                137,
+                154,
+                227,
+                71,
+                69,
+                159,
+                134,
+                178
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider",
+                    "writable": true
+                },
+                {
+                    "name": "subscription_requests",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    95,
+                                    114,
+                                    101,
+                                    113,
+                                    117,
+                                    101,
+                                    115,
+                                    116,
+                                    115
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "system_program",
+                    "address": "11111111111111111111111111111111"
+                }
+            ],
+            "args": []
         },
         {
             "name": "set_collector_fee",
@@ -502,6 +1204,20 @@
                             {
                                 "kind": "const",
                                 "value": [
+                                    100,
+                                    97,
+                                    116,
+                                    97,
+                                    95,
+                                    112,
+                                    114,
+                                    111,
+                                    118,
+                                    105,
+                                    100,
+                                    101,
+                                    114,
+                                    95,
                                     102,
                                     101,
                                     101
@@ -673,34 +1389,6 @@
                     }
                 },
                 {
-                    "name": "subscribers_list",
-                    "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [
-                                    115,
-                                    117,
-                                    98,
-                                    115,
-                                    99,
-                                    114,
-                                    105,
-                                    98,
-                                    101,
-                                    114,
-                                    115
-                                ]
-                            },
-                            {
-                                "kind": "account",
-                                "path": "data_provider"
-                            }
-                        ]
-                    }
-                },
-                {
                     "name": "owner",
                     "writable": true
                 },
@@ -714,6 +1402,14 @@
                 },
                 {
                     "name": "owner_payment_ata",
+                    "writable": true
+                },
+                {
+                    "name": "agent_registration",
+                    "writable": true
+                },
+                {
+                    "name": "subscription_requests",
                     "writable": true
                 },
                 {
@@ -745,6 +1441,19 @@
     ],
     "accounts": [
         {
+            "name": "AgentRegistration",
+            "discriminator": [
+                130,
+                53,
+                100,
+                103,
+                121,
+                77,
+                148,
+                19
+            ]
+        },
+        {
             "name": "DataProviderFee",
             "discriminator": [
                 150,
@@ -755,6 +1464,19 @@
                 243,
                 172,
                 176
+            ]
+        },
+        {
+            "name": "MySubscriptions",
+            "discriminator": [
+                180,
+                231,
+                40,
+                166,
+                107,
+                41,
+                82,
+                49
             ]
         },
         {
@@ -807,6 +1529,19 @@
                 132,
                 98,
                 33
+            ]
+        },
+        {
+            "name": "SubscriptionRequests",
+            "discriminator": [
+                233,
+                49,
+                14,
+                197,
+                190,
+                232,
+                137,
+                135
             ]
         }
     ],
@@ -953,9 +1688,102 @@
             "code": 6009,
             "name": "NotOwner",
             "msg": "Not the contract owner"
+        },
+        {
+            "code": 6010,
+            "name": "TooManyRequests",
+            "msg": "Too Many Requests"
+        },
+        {
+            "code": 6011,
+            "name": "NoSubscriptionRequest",
+            "msg": "No Subscription Request Found"
+        },
+        {
+            "code": 6012,
+            "name": "RequestNotApproved",
+            "msg": "Request Not Approved"
+        },
+        {
+            "code": 6013,
+            "name": "Unauthorized",
+            "msg": "Unauthorized"
+        },
+        {
+            "code": 6014,
+            "name": "InvalidDataProvider",
+            "msg": "Invalid Data Provider"
+        },
+        {
+            "code": 6015,
+            "name": "InvalidDataProviderFeeAccount",
+            "msg": "Invalid Data Provider Fee Account"
+        },
+        {
+            "code": 6016,
+            "name": "InvalidOwnerFeeAccount",
+            "msg": "Invalid Owner Fee Account"
+        },
+        {
+            "code": 6017,
+            "name": "InvalidDataProviderPaymentAccount",
+            "msg": "Invalid Data Provider Payment Account"
+        },
+        {
+            "code": 6018,
+            "name": "InvalidOwnerPaymentAccount",
+            "msg": "Invalid Owner Payment Account"
         }
     ],
     "types": [
+        {
+            "name": "AgentRegistration",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "address",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "type": "string"
+                    },
+                    {
+                        "name": "restrict_subscriptions",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "text",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "photo",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "video",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "telegram",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "twitter",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "discord",
+                        "type": "bool"
+                    }
+                ]
+            }
+        },
         {
             "name": "CollectorFeeUpdatedEvent",
             "type": {
@@ -974,6 +1802,10 @@
                 "kind": "struct",
                 "fields": [
                     {
+                        "name": "owner",
+                        "type": "pubkey"
+                    },
+                    {
                         "name": "fee",
                         "type": "u64"
                     }
@@ -988,6 +1820,20 @@
                     {
                         "name": "new_fee_per_day",
                         "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "MySubscriptions",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "providers",
+                        "type": {
+                            "vec": "pubkey"
+                        }
                     }
                 ]
             }
@@ -1054,6 +1900,22 @@
                     {
                         "name": "quality",
                         "type": "u8"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Requests",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "subscriber_pubkey",
+                        "type": "pubkey"
+                    },
+                    {
+                        "name": "approved",
+                        "type": "bool"
                     }
                 ]
             }
@@ -1200,6 +2062,24 @@
                     {
                         "name": "timestamp",
                         "type": "i64"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "SubscriptionRequests",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "requests",
+                        "type": {
+                            "vec": {
+                                "defined": {
+                                    "name": "Requests"
+                                }
+                            }
+                        }
                     }
                 ]
             }

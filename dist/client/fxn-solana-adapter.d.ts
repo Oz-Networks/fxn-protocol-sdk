@@ -1,6 +1,6 @@
 import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
-import type { SubscriptionManager } from '../types/subscription_manager';
+import type { SubscriptionManager } from '@/types/subscription_manager';
 export interface RenewParams {
     dataProvider: PublicKey;
     newRecipient: string;
@@ -26,6 +26,12 @@ export interface SubscriberDetails {
     };
     status: 'active' | 'expired' | 'expiring_soon';
 }
+export interface SubscriptionDetails {
+    dataProvider: PublicKey;
+    subscription: PublicKey;
+    endTime: BN;
+    recipient: string;
+}
 export interface SetDataProviderFeeParams {
     fee: number;
 }
@@ -48,6 +54,34 @@ export interface CreateSubscriptionParams {
     durationInDays: number;
     nftTokenAccount: PublicKey;
 }
+export interface RequestSubscriptionParams {
+    dataProvider: PublicKey;
+}
+export interface ApproveSubscriptionRequestParams {
+    subscriberAddress: PublicKey;
+    requestIndex: number;
+}
+export interface SubscriptionListParams {
+    dataProvider: PublicKey;
+}
+interface _SubscriptionListParams {
+    subscriber: PublicKey;
+    dataProvider: PublicKey;
+    mySubscriptionsPDA: PublicKey;
+    subscribersListPDA: PublicKey;
+}
+export interface AgentParams {
+    name: string;
+    description: string;
+    restrict_subscriptions: boolean;
+    text: boolean;
+    photo: boolean;
+    video: boolean;
+    telegram: boolean;
+    twitter: boolean;
+    discord: boolean;
+    fee: number;
+}
 export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
     subscription: SubscriptionAccount;
@@ -56,12 +90,21 @@ export declare class SolanaAdapter {
     program: Program<SubscriptionManager>;
     provider: AnchorProvider;
     constructor(provider: AnchorProvider);
+    registerAgent(params: AgentParams): Promise<TransactionSignature>;
+    editAgentDetails(params: AgentParams): Promise<TransactionSignature>;
+    requestSubscription(params: RequestSubscriptionParams): Promise<TransactionSignature>;
+    approveSubscriptionRequest(params: ApproveSubscriptionRequestParams): Promise<TransactionSignature>;
     setDataProviderFee(params: SetDataProviderFeeParams): Promise<TransactionSignature>;
-    createSubscription(params: CreateSubscriptionParams): Promise<TransactionSignature>;
+    createSubscription(params: CreateSubscriptionParams): Promise<[TransactionSignature, TransactionSignature]>;
+    subscriptionLists(params: SubscriptionListParams): Promise<TransactionSignature>;
+    reallocSubscriptionLists(params: _SubscriptionListParams): Promise<TransactionSignature>;
+    initMySubscriptionsList(params: _SubscriptionListParams): Promise<TransactionSignature>;
+    initSubscribersList(params: _SubscriptionListParams): Promise<TransactionSignature>;
+    addSubscriptionsLists(params: _SubscriptionListParams): Promise<TransactionSignature>;
     getSubscriptionStatus(endTime: BN): 'active' | 'expired' | 'expiring_soon';
     getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey>;
     getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]>;
-    getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionStatus[]>;
+    getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionDetails[]>;
     renewSubscription(params: RenewParams): Promise<TransactionSignature>;
     cancelSubscription(params: CancelParams): Promise<TransactionSignature>;
     getSubscriptionState(subscriptionPDA: PublicKey): Promise<SubscriptionAccount>;
@@ -72,6 +115,8 @@ export declare class SolanaAdapter {
         subscriptionPDA: PublicKey;
         subscribersListPDA: PublicKey;
         dataProviderFeePDA: PublicKey;
+        mySubscriptionsPDA: PublicKey;
+        subscriptionRequestsPDA: PublicKey;
     };
     private handleError;
 }

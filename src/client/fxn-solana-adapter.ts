@@ -273,7 +273,7 @@ export class SolanaAdapter {
              );
 
             const txHash = await this.program.methods
-                .approveSubscriptionRequest(new BN(params.requestIndex))
+                .approveRequest(new BN(params.requestIndex))
                 .accounts({
                     subscriber: params.subscriberAddress,
                     dataProvider: dataProvider,

@@ -19,7 +19,7 @@ const web3_js_1 = require("@solana/web3.js");
 const spl_token_1 = require("@solana/spl-token");
 const spl_token_2 = require("@solana/spl-token");
 const subscription_manager_json_1 = __importDefault(require("../types/idl/subscription_manager.json"));
-const config_1 = require("../config");
+const index_1 = require("../config/index");
 // Enhanced error types
 var SubscriptionErrorCode;
 (function (SubscriptionErrorCode) {
@@ -35,11 +35,117 @@ var SubscriptionErrorCode;
 })(SubscriptionErrorCode || (exports.SubscriptionErrorCode = SubscriptionErrorCode = {}));
 class SolanaAdapter {
     constructor(provider) {
-        if (!config_1.config.subscriptionManagerAddress) {
+        if (!index_1.config.subscriptionManagerAddress) {
             throw new Error('Program ID not found in environment variables');
         }
         this.provider = provider;
         this.program = new anchor_1.Program(subscription_manager_json_1.default, provider);
+    }
+    registerAgent(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const dataProvider = this.provider.wallet.publicKey;
+                const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_registration"), dataProvider.toBuffer()], this.program.programId);
+                const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
+                const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
+                const txHash = yield this.program.methods
+                    .registerAgent(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, params.fee)
+                    .accounts({
+                    agentRegistration: agentRegistrationPDA,
+                    subscriptionRequests: subscriptionRequestsPDA,
+                    dataProviderFee: dataProviderFeePDA,
+                    dataProvider: dataProvider,
+                    SystemProgram: web3_js_1.SystemProgram.programId,
+                })
+                    .rpc();
+                return txHash;
+            }
+            catch (error) {
+                console.error('Error registering agent:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
+    editAgentDetails(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const dataProvider = this.provider.wallet.publicKey;
+                const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_registration"), dataProvider.toBuffer()], this.program.programId);
+                const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
+                const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
+                const txHash = yield this.program.methods
+                    .editAgentData(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, params.fee)
+                    .accounts({
+                    agentRegistration: agentRegistrationPDA,
+                    subscriptionRequests: subscriptionRequestsPDA,
+                    dataProviderFee: dataProviderFeePDA,
+                    dataProvider: dataProvider,
+                    SystemProgram: web3_js_1.SystemProgram.programId,
+                })
+                    .rpc();
+                return txHash;
+            }
+            catch (error) {
+                console.error('Error registering agent:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
+    requestSubscription(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const subscriber = this.provider.wallet.publicKey;
+                const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
+                const txHash = yield this.program.methods
+                    .requestSubscription()
+                    .accounts({
+                    subscriber: subscriber,
+                    dataProvider: params.dataProvider,
+                    subscriptionRequests: pdas.subscriptionRequestsPDA,
+                    SystemProgram: web3_js_1.SystemProgram.programId,
+                })
+                    .rpc();
+                return txHash;
+            }
+            catch (error) {
+                console.error('Error requesting subscription:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
+    approveSubscriptionRequest(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const dataProvider = this.provider.wallet.publicKey;
+                const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
+                const txHash = yield this.program.methods
+                    .approveRequest(new anchor_1.BN(params.requestIndex))
+                    .accounts({
+                    subscriber: params.subscriberAddress,
+                    dataProvider: dataProvider,
+                    subscriptionRequests: subscriptionRequestsPDA,
+                    SystemProgram: web3_js_1.SystemProgram.programId,
+                })
+                    .rpc();
+                return txHash;
+            }
+            catch (error) {
+                console.error('Error approving subscription request:', error);
+                throw this.handleError(error);
+            }
+        });
     }
     // adapters/solana-adapter.ts
     setDataProviderFee(params) {
@@ -58,10 +164,6 @@ class SolanaAdapter {
                     SystemProgram: web3_js_1.SystemProgram.programId,
                 })
                     .rpc();
-                console.log('Data Provider daily fee set:', {
-                    txHash,
-                    dataProviderFeePDA: dataProviderFeePDA.toString()
-                });
                 return txHash;
             }
             catch (error) {
@@ -76,32 +178,17 @@ class SolanaAdapter {
                 throw new Error("Wallet not connected");
             }
             try {
-                console.log('Creating subscription:', {
-                    subscriber: this.provider.wallet.publicKey.toString(),
-                    dataProvider: params.dataProvider.toString(),
-                    recipient: params.recipient,
-                    durationInDays: params.durationInDays,
-                    nftTokenAccount: params.nftTokenAccount.toString()
-                });
                 const subscriber = this.provider.wallet.publicKey;
                 const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
-                console.log('PDAs for subscription:', {
-                    statePDA: pdas.statePDA.toString(),
-                    subscriptionPDA: pdas.subscriptionPDA.toString(),
-                    subscribersListPDA: pdas.subscribersListPDA.toString()
-                });
+                const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), params.dataProvider.toBuffer()], this.program.programId);
+                const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_registration"), params.dataProvider.toBuffer()], this.program.programId);
                 // Get the state account to get the correct owner
                 const state = yield this.program.account.state.fetch(pdas.statePDA);
                 // Get the associated token accounts for the payment
-                const fxnMintAddress = new web3_js_1.PublicKey(config_1.config.fxnMintAddress);
+                const fxnMintAddress = new web3_js_1.PublicKey(index_1.config.fxnMintAddress);
                 const dp_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, params.dataProvider);
                 const subscriber_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, subscriber);
                 const owner_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, state.owner);
-                console.log('ATAs for subscription:', {
-                    dataProviderATA: dp_payment_ata.toString(),
-                    subscriberATA: subscriber_payment_ata.toString(),
-                    ownerATA: owner_payment_ata.toString()
-                });
                 const txHash = yield this.program.methods
                     .subscribe(params.recipient, new anchor_1.BN(Math.floor(Date.now() / 1000) + (params.durationInDays * 24 * 60 * 60)))
                     .accounts({
@@ -109,27 +196,133 @@ class SolanaAdapter {
                     subscriber: subscriber,
                     dataProvider: params.dataProvider,
                     subscription: pdas.subscriptionPDA,
-                    subscribersList: pdas.subscribersListPDA,
                     owner: state.owner,
                     dataProviderPaymentAta: dp_payment_ata,
                     subscriberPaymentAta: subscriber_payment_ata,
                     ownerPaymentAta: owner_payment_ata,
+                    agentRegistration: agentRegistrationPDA,
+                    subscriptionRequests: subscriptionRequestsPDA,
                     systemProgram: web3_js_1.SystemProgram.programId,
                     tokenProgram: spl_token_2.TOKEN_PROGRAM_ID,
                     nftTokenAccount: params.nftTokenAccount,
                     dpFeeAccount: pdas.dataProviderFeePDA,
                 })
                     .rpc();
-                console.log('Subscription created:', {
-                    txHash,
-                    subscriptionPDA: pdas.subscriptionPDA.toString()
-                });
-                return txHash;
+                const subscriptionListTxHash = yield this.subscriptionLists({ dataProvider: params.dataProvider });
+                return [txHash, subscriptionListTxHash];
             }
             catch (error) {
                 console.error('Error creating subscription:', error);
                 throw this.handleError(error);
             }
+        });
+    }
+    subscriptionLists(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const subscriber = this.provider.wallet.publicKey;
+                const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
+                const mySubscriptionsAccount = yield this.provider.connection.getAccountInfo(pdas.mySubscriptionsPDA);
+                const subscribersListAccount = yield this.provider.connection.getAccountInfo(pdas.subscribersListPDA);
+                const listParams = {
+                    subscriber: subscriber,
+                    dataProvider: params.dataProvider,
+                    mySubscriptionsPDA: pdas.mySubscriptionsPDA,
+                    subscribersListPDA: pdas.subscribersListPDA,
+                };
+                let txHash;
+                if (!!mySubscriptionsAccount && !!subscribersListAccount) {
+                    if (mySubscriptionsAccount.data.length < 8 + 4 + (200 * 32) || subscribersListAccount.data.length < 8 + 4 + (200 * 32)) {
+                        txHash = yield this.reallocSubscriptionLists(listParams);
+                    }
+                    else {
+                        txHash = yield this.addSubscriptionsLists(listParams);
+                    }
+                }
+                else {
+                    if (!!mySubscriptionsAccount) {
+                        yield this.initSubscribersList(listParams);
+                        txHash = yield this.reallocSubscriptionLists(listParams);
+                    }
+                    else if (!!subscribersListAccount) {
+                        yield this.initMySubscriptionsList(listParams);
+                        txHash = yield this.reallocSubscriptionLists(listParams);
+                    }
+                    else {
+                        yield this.initMySubscriptionsList(listParams);
+                        yield this.initSubscribersList(listParams);
+                        txHash = yield this.reallocSubscriptionLists(listParams);
+                    }
+                }
+                return txHash;
+            }
+            catch (error) {
+                console.error('Error creating / adding to subscription lists:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
+    reallocSubscriptionLists(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tx = yield this.program.methods
+                .reallocAddSubscriptionsLists()
+                .accounts({
+                subscriber: params.subscriber,
+                dataProvider: params.dataProvider,
+                mySubscriptions: params.mySubscriptionsPDA,
+                subscribersList: params.subscribersListPDA,
+                systemProgram: web3_js_1.SystemProgram.programId,
+            })
+                .rpc();
+            return tx;
+        });
+    }
+    initMySubscriptionsList(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tx = yield this.program.methods
+                .initMySubscriptionsList()
+                .accounts({
+                subscriber: params.subscriber,
+                dataProvider: params.dataProvider,
+                mySubscriptions: params.mySubscriptionsPDA,
+                subscribersList: params.subscribersListPDA,
+                systemProgram: web3_js_1.SystemProgram.programId,
+            })
+                .rpc();
+            return tx;
+        });
+    }
+    initSubscribersList(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tx = yield this.program.methods
+                .initSubscribersList()
+                .accounts({
+                subscriber: params.subscriber,
+                dataProvider: params.dataProvider,
+                mySubscriptions: params.mySubscriptionsPDA,
+                subscribersList: params.subscribersListPDA,
+                systemProgram: web3_js_1.SystemProgram.programId,
+            })
+                .rpc();
+            return tx;
+        });
+    }
+    addSubscriptionsLists(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tx = yield this.program.methods
+                .addSubscriptionsLists()
+                .accounts({
+                subscriber: params.subscriber,
+                dataProvider: params.dataProvider,
+                mySubscriptions: params.mySubscriptionsPDA,
+                subscribersList: params.subscribersListPDA,
+                systemProgram: web3_js_1.SystemProgram.programId,
+            })
+                .rpc();
+            return tx;
         });
     }
     getSubscriptionStatus(endTime) {
@@ -146,7 +339,7 @@ class SolanaAdapter {
     }
     getProviderTokenAccount(providerAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const nftMint = new web3_js_1.PublicKey(config_1.config.nftTokenAddress);
+            const nftMint = new web3_js_1.PublicKey(index_1.config.nftTokenAddress);
             try {
                 const tokenAccount = yield (0, spl_token_1.getAssociatedTokenAddress)(nftMint, providerAddress, false);
                 const tokenAccountInfo = yield this.provider.connection.getAccountInfo(tokenAccount);
@@ -164,15 +357,10 @@ class SolanaAdapter {
     getSubscriptionsForProvider(providerPublicKey) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Getting subscriptions for provider:', providerPublicKey.toString());
                 // Get the subscribers list PDA
                 const [subscribersListPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscribers"), providerPublicKey.toBuffer()], this.program.programId);
                 // Get the list of subscribers
                 const subscribersList = yield this.program.account.subscribersList.fetch(subscribersListPDA);
-                console.log('Found subscribers:', {
-                    count: subscribersList.subscribers.length,
-                    subscribers: subscribersList.subscribers.map(s => s.toString())
-                });
                 // Get subscription details for each subscriber
                 const subscriptions = yield Promise.all(subscribersList.subscribers.map((subscriber) => __awaiter(this, void 0, void 0, function* () {
                     // Calculate subscription PDA for this subscriber
@@ -183,12 +371,6 @@ class SolanaAdapter {
                     ], this.program.programId);
                     try {
                         const subscription = yield this.program.account.subscription.fetch(subscriptionPDA);
-                        console.log('Found subscription:', {
-                            subscriber: subscriber.toString(),
-                            pda: subscriptionPDA.toString(),
-                            endTime: subscription.endTime.toString(),
-                            recipient: subscription.recipient
-                        });
                         return {
                             subscriber,
                             subscriptionPDA,
@@ -197,26 +379,15 @@ class SolanaAdapter {
                         };
                     }
                     catch (error) {
-                        console.log('No subscription found for subscriber:', subscriber.toString());
+                        console.error('No subscription found for subscriber:', subscriber.toString());
                         return null;
                     }
                 })));
                 // Filter out null values and sort by active status
-                const validSubscriptions = subscriptions
+                return subscriptions
                     .filter((sub) => sub !== null &&
                     sub.subscription.endTime.gt(new anchor_1.BN(Math.floor(Date.now() / 1000))))
                     .sort((a, b) => b.subscription.endTime.sub(a.subscription.endTime).toNumber());
-                console.log('Active subscriptions found:', {
-                    total: validSubscriptions.length,
-                    subscriptions: validSubscriptions.map(sub => ({
-                        subscriber: sub.subscriber.toString(),
-                        pda: sub.subscriptionPDA.toString(),
-                        endTime: sub.subscription.endTime.toString(),
-                        recipient: sub.subscription.recipient,
-                        status: sub.status
-                    }))
-                });
-                return validSubscriptions;
             }
             catch (error) {
                 console.error('Error getting provider subscriptions:', error);
@@ -227,66 +398,43 @@ class SolanaAdapter {
     getAllSubscriptionsForUser(userPublicKey) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Getting subscriptions for user:', userPublicKey.toString());
-                // Get all subscription accounts
-                const subscriptionAccounts = yield this.program.account.subscription.all();
-                console.log('Total subscription accounts:', subscriptionAccounts.length);
-                // Get all subscriber lists
-                const subscriberLists = yield this.program.account.subscribersList.all();
-                console.log('Total subscriber lists:', subscriberLists.length);
-                const userSubscriptions = [];
-                // For each subscriber list
-                for (const list of subscriberLists) {
-                    // Extract data provider from the subscriber list PDA
-                    // The PDA is created with [b"subscribers", data_provider.key().as_ref()]
-                    const [listPDA, _] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscribers"), list.publicKey.toBuffer()], this.program.programId);
-                    // If this matches our list's PDA, we found a data provider
-                    if (listPDA.equals(list.publicKey)) {
-                        const dataProvider = list.publicKey;
-                        // Calculate what our subscription PDA would be with this provider
-                        const [expectedSubPDA] = web3_js_1.PublicKey.findProgramAddressSync([
-                            Buffer.from("subscription"),
-                            userPublicKey.toBuffer(),
-                            dataProvider.toBuffer()
-                        ], this.program.programId);
-                        console.log('Checking for subscription:', {
-                            provider: dataProvider.toString(),
-                            expectedPDA: expectedSubPDA.toString()
-                        });
-                        // Look for this subscription in our accounts
-                        const subscription = subscriptionAccounts.find(acc => acc.publicKey.equals(expectedSubPDA));
-                        if (subscription) {
-                            console.log('Found subscription:', {
-                                provider: dataProvider.toString(),
-                                pda: subscription.publicKey.toString(),
-                                endTime: subscription.account.endTime.toString(),
-                                recipient: subscription.account.recipient
-                            });
-                            userSubscriptions.push({
-                                subscription: subscription.account,
-                                subscriptionPDA: subscription.publicKey,
-                                dataProvider,
-                                status: this.getSubscriptionStatus(subscription.account.endTime)
-                            });
-                        }
+                // Get the mySubscriptions PDA
+                const [mySubscriptionsPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("my_subscriptions"), userPublicKey.toBuffer()], this.program.programId);
+                // Fetch the mySubscriptions account
+                const mySubscriptions = yield this.program.account.mySubscriptions.fetch(mySubscriptionsPDA);
+                // Map over each data provider and get their subscription details
+                const subscriptions = yield Promise.all(mySubscriptions.providers.map((dataProvider) => __awaiter(this, void 0, void 0, function* () {
+                    // Calculate subscription PDA for this provider
+                    const [subscriptionPDA] = web3_js_1.PublicKey.findProgramAddressSync([
+                        Buffer.from("subscription"),
+                        userPublicKey.toBuffer(),
+                        dataProvider.toBuffer()
+                    ], this.program.programId);
+                    try {
+                        // Fetch the subscription account
+                        const subscription = yield this.program.account.subscription.fetch(subscriptionPDA);
+                        return {
+                            dataProvider,
+                            subscription: subscriptionPDA,
+                            endTime: subscription.endTime,
+                            recipient: subscription.recipient,
+                            status: this.getSubscriptionStatus(subscription.endTime)
+                        };
                     }
-                }
-                // Filter to only active subscriptions
-                const activeSubscriptions = userSubscriptions.filter(sub => sub.subscription.endTime.gt(new anchor_1.BN(Math.floor(Date.now() / 1000))));
-                console.log('Active subscriptions found:', {
-                    total: activeSubscriptions.length,
-                    subscriptions: activeSubscriptions.map(sub => ({
-                        provider: sub.dataProvider.toString(),
-                        pda: sub.subscriptionPDA.toString(),
-                        endTime: sub.subscription.endTime.toString(),
-                        recipient: sub.subscription.recipient,
-                        status: sub.status
-                    }))
-                });
-                return activeSubscriptions;
+                    catch (error) {
+                        console.error(`Error fetching subscription for provider ${dataProvider.toString()}:`, error);
+                        return null;
+                    }
+                })));
+                // Filter out null values (failed fetches) and expired subscriptions
+                // Sort by end time descending (most recent first)
+                return subscriptions
+                    .filter((sub) => sub !== null &&
+                    sub.endTime.gt(new anchor_1.BN(Math.floor(Date.now() / 1000))))
+                    .sort((a, b) => b.endTime.sub(a.endTime).toNumber());
             }
             catch (error) {
-                console.error('Error in getAllSubscriptionsForUser:', error);
+                console.error('Error fetching user subscriptions:', error);
                 throw this.handleError(error);
             }
         });
@@ -317,15 +465,10 @@ class SolanaAdapter {
                 // Get the state account to verify the owner
                 const state = yield this.program.account.state.fetch(pdas.statePDA);
                 // Get the associated token accounts for the payment
-                const fxnMintAddress = new web3_js_1.PublicKey(config_1.config.fxnMintAddress);
+                const fxnMintAddress = new web3_js_1.PublicKey(index_1.config.fxnMintAddress);
                 const dp_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, params.dataProvider);
                 const subscriber_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, subscriber);
                 const owner_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, state.owner);
-                console.log('ATAs for subscription:', {
-                    dataProviderATA: dp_payment_ata.toString(),
-                    subscriberATA: subscriber_payment_ata.toString(),
-                    ownerATA: owner_payment_ata.toString()
-                });
                 // Send renewal transaction
                 const txHash = yield this.program.methods
                     .renewSubscription(params.newRecipient, new anchor_1.BN(params.newEndTime), params.qualityScore)
@@ -412,13 +555,17 @@ class SolanaAdapter {
             dataProvider.toBuffer(),
         ], this.program.programId);
         const [subscribersListPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscribers"), dataProvider.toBuffer()], this.program.programId);
-        const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
+        const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
+        const [mySubscriptionsPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("my_subscriptions"), subscriber.toBuffer()], this.program.programId);
+        const [subscriptionRequestsPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
         return {
             statePDA,
             qualityPDA,
             subscriptionPDA,
             subscribersListPDA,
             dataProviderFeePDA,
+            mySubscriptionsPDA,
+            subscriptionRequestsPDA,
         };
     }
     handleError(error) {

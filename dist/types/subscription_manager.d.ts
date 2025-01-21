@@ -14,6 +14,134 @@ export type SubscriptionManager = {
     };
     "instructions": [
         {
+            "name": "addSubscriptionsLists";
+            "discriminator": [
+                75,
+                92,
+                81,
+                46,
+                141,
+                174,
+                174,
+                37
+            ];
+            "accounts": [
+                {
+                    "name": "subscriber";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                },
+                {
+                    "name": "mySubscriptions";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    109,
+                                    121,
+                                    95,
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "subscriber";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "subscribersList";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [];
+        },
+        {
+            "name": "approveRequest";
+            "discriminator": [
+                89,
+                68,
+                167,
+                104,
+                93,
+                25,
+                178,
+                205
+            ];
+            "accounts": [
+                {
+                    "name": "subscriber";
+                    "writable": true;
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "subscriptionRequests";
+                    "writable": true;
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [
+                {
+                    "name": "index";
+                    "type": "u64";
+                }
+            ];
+        },
+        {
             "name": "cancelSubscription";
             "discriminator": [
                 60,
@@ -103,6 +231,110 @@ export type SubscriptionManager = {
                 {
                     "name": "quality";
                     "type": "u8";
+                }
+            ];
+        },
+        {
+            "name": "editAgentData";
+            "discriminator": [
+                108,
+                105,
+                209,
+                37,
+                34,
+                29,
+                170,
+                139
+            ];
+            "accounts": [
+                {
+                    "name": "agentRegistration";
+                    "writable": true;
+                },
+                {
+                    "name": "dataProviderFee";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    100,
+                                    97,
+                                    116,
+                                    97,
+                                    95,
+                                    112,
+                                    114,
+                                    111,
+                                    118,
+                                    105,
+                                    100,
+                                    101,
+                                    114,
+                                    95,
+                                    102,
+                                    101,
+                                    101
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [
+                {
+                    "name": "name";
+                    "type": "string";
+                },
+                {
+                    "name": "description";
+                    "type": "string";
+                },
+                {
+                    "name": "restrictSubscriptions";
+                    "type": "bool";
+                },
+                {
+                    "name": "text";
+                    "type": "bool";
+                },
+                {
+                    "name": "photo";
+                    "type": "bool";
+                },
+                {
+                    "name": "video";
+                    "type": "bool";
+                },
+                {
+                    "name": "telegram";
+                    "type": "bool";
+                },
+                {
+                    "name": "twitter";
+                    "type": "bool";
+                },
+                {
+                    "name": "discord";
+                    "type": "bool";
+                },
+                {
+                    "name": "fee";
+                    "type": "u64";
                 }
             ];
         },
@@ -242,6 +474,125 @@ export type SubscriptionManager = {
             };
         },
         {
+            "name": "initMySubscriptionsList";
+            "discriminator": [
+                16,
+                123,
+                17,
+                204,
+                44,
+                17,
+                112,
+                202
+            ];
+            "accounts": [
+                {
+                    "name": "subscriber";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                },
+                {
+                    "name": "mySubscriptions";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    109,
+                                    121,
+                                    95,
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "subscriber";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [];
+        },
+        {
+            "name": "initSubscribersList";
+            "discriminator": [
+                125,
+                114,
+                126,
+                189,
+                97,
+                188,
+                11,
+                29
+            ];
+            "accounts": [
+                {
+                    "name": "subscriber";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                },
+                {
+                    "name": "subscribersList";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [];
+        },
+        {
             "name": "initialize";
             "discriminator": [
                 175,
@@ -262,6 +613,12 @@ export type SubscriptionManager = {
                             {
                                 "kind": "const";
                                 "value": [
+                                    115,
+                                    116,
+                                    97,
+                                    116,
+                                    101,
+                                    32,
                                     115,
                                     116,
                                     111,
@@ -343,6 +700,269 @@ export type SubscriptionManager = {
                 }
             ];
             "args": [];
+        },
+        {
+            "name": "reallocAddSubscriptionsLists";
+            "discriminator": [
+                99,
+                160,
+                45,
+                253,
+                23,
+                118,
+                22,
+                205
+            ];
+            "accounts": [
+                {
+                    "name": "subscriber";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                },
+                {
+                    "name": "mySubscriptions";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    109,
+                                    121,
+                                    95,
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "subscriber";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "subscribersList";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    98,
+                                    101,
+                                    114,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [];
+        },
+        {
+            "name": "registerAgent";
+            "discriminator": [
+                135,
+                157,
+                66,
+                195,
+                2,
+                113,
+                175,
+                30
+            ];
+            "accounts": [
+                {
+                    "name": "agentRegistration";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    97,
+                                    103,
+                                    101,
+                                    110,
+                                    116,
+                                    95,
+                                    114,
+                                    101,
+                                    103,
+                                    105,
+                                    115,
+                                    116,
+                                    114,
+                                    97,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "subscriptionRequests";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    95,
+                                    114,
+                                    101,
+                                    113,
+                                    117,
+                                    101,
+                                    115,
+                                    116,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "dataProviderFee";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    100,
+                                    97,
+                                    116,
+                                    97,
+                                    95,
+                                    112,
+                                    114,
+                                    111,
+                                    118,
+                                    105,
+                                    100,
+                                    101,
+                                    114,
+                                    95,
+                                    102,
+                                    101,
+                                    101
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [
+                {
+                    "name": "name";
+                    "type": "string";
+                },
+                {
+                    "name": "description";
+                    "type": "string";
+                },
+                {
+                    "name": "restrictSubscriptions";
+                    "type": "bool";
+                },
+                {
+                    "name": "text";
+                    "type": "bool";
+                },
+                {
+                    "name": "photo";
+                    "type": "bool";
+                },
+                {
+                    "name": "video";
+                    "type": "bool";
+                },
+                {
+                    "name": "telegram";
+                    "type": "bool";
+                },
+                {
+                    "name": "twitter";
+                    "type": "bool";
+                },
+                {
+                    "name": "discord";
+                    "type": "bool";
+                },
+                {
+                    "name": "fee";
+                    "type": "u64";
+                }
+            ];
         },
         {
             "name": "renewSubscription";
@@ -432,6 +1052,17 @@ export type SubscriptionManager = {
                     "writable": true;
                 },
                 {
+                    "name": "dataProviderPaymentAta";
+                },
+                {
+                    "name": "subscriberPaymentAta";
+                    "writable": true;
+                },
+                {
+                    "name": "ownerPaymentAta";
+                    "writable": true;
+                },
+                {
                     "name": "systemProgram";
                     "address": "11111111111111111111111111111111";
                 },
@@ -441,6 +1072,10 @@ export type SubscriptionManager = {
                 },
                 {
                     "name": "nftTokenAccount";
+                },
+                {
+                    "name": "dpFeeAccount";
+                    "writable": true;
                 }
             ];
             "args": [
@@ -457,6 +1092,73 @@ export type SubscriptionManager = {
                     "type": "u8";
                 }
             ];
+        },
+        {
+            "name": "requestSubscription";
+            "discriminator": [
+                137,
+                154,
+                227,
+                71,
+                69,
+                159,
+                134,
+                178
+            ];
+            "accounts": [
+                {
+                    "name": "subscriber";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "dataProvider";
+                    "writable": true;
+                },
+                {
+                    "name": "subscriptionRequests";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110,
+                                    95,
+                                    114,
+                                    101,
+                                    113,
+                                    117,
+                                    101,
+                                    115,
+                                    116,
+                                    115
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                },
+                {
+                    "name": "systemProgram";
+                    "address": "11111111111111111111111111111111";
+                }
+            ];
+            "args": [];
         },
         {
             "name": "setCollectorFee";
@@ -508,6 +1210,20 @@ export type SubscriptionManager = {
                             {
                                 "kind": "const";
                                 "value": [
+                                    100,
+                                    97,
+                                    116,
+                                    97,
+                                    95,
+                                    112,
+                                    114,
+                                    111,
+                                    118,
+                                    105,
+                                    100,
+                                    101,
+                                    114,
+                                    95,
                                     102,
                                     101,
                                     101
@@ -679,34 +1395,6 @@ export type SubscriptionManager = {
                     };
                 },
                 {
-                    "name": "subscribersList";
-                    "writable": true;
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const";
-                                "value": [
-                                    115,
-                                    117,
-                                    98,
-                                    115,
-                                    99,
-                                    114,
-                                    105,
-                                    98,
-                                    101,
-                                    114,
-                                    115
-                                ];
-                            },
-                            {
-                                "kind": "account";
-                                "path": "dataProvider";
-                            }
-                        ];
-                    };
-                },
-                {
                     "name": "owner";
                     "writable": true;
                 },
@@ -720,6 +1408,14 @@ export type SubscriptionManager = {
                 },
                 {
                     "name": "ownerPaymentAta";
+                    "writable": true;
+                },
+                {
+                    "name": "agentRegistration";
+                    "writable": true;
+                },
+                {
+                    "name": "subscriptionRequests";
                     "writable": true;
                 },
                 {
@@ -751,6 +1447,19 @@ export type SubscriptionManager = {
     ];
     "accounts": [
         {
+            "name": "agentRegistration";
+            "discriminator": [
+                130,
+                53,
+                100,
+                103,
+                121,
+                77,
+                148,
+                19
+            ];
+        },
+        {
             "name": "dataProviderFee";
             "discriminator": [
                 150,
@@ -761,6 +1470,19 @@ export type SubscriptionManager = {
                 243,
                 172,
                 176
+            ];
+        },
+        {
+            "name": "mySubscriptions";
+            "discriminator": [
+                180,
+                231,
+                40,
+                166,
+                107,
+                41,
+                82,
+                49
             ];
         },
         {
@@ -813,6 +1535,19 @@ export type SubscriptionManager = {
                 132,
                 98,
                 33
+            ];
+        },
+        {
+            "name": "subscriptionRequests";
+            "discriminator": [
+                233,
+                49,
+                14,
+                197,
+                190,
+                232,
+                137,
+                135
             ];
         }
     ];
@@ -959,9 +1694,102 @@ export type SubscriptionManager = {
             "code": 6009;
             "name": "notOwner";
             "msg": "Not the contract owner";
+        },
+        {
+            "code": 6010;
+            "name": "tooManyRequests";
+            "msg": "Too Many Requests";
+        },
+        {
+            "code": 6011;
+            "name": "noSubscriptionRequest";
+            "msg": "No Subscription Request Found";
+        },
+        {
+            "code": 6012;
+            "name": "requestNotApproved";
+            "msg": "Request Not Approved";
+        },
+        {
+            "code": 6013;
+            "name": "unauthorized";
+            "msg": "unauthorized";
+        },
+        {
+            "code": 6014;
+            "name": "invalidDataProvider";
+            "msg": "Invalid Data Provider";
+        },
+        {
+            "code": 6015;
+            "name": "invalidDataProviderFeeAccount";
+            "msg": "Invalid Data Provider Fee Account";
+        },
+        {
+            "code": 6016;
+            "name": "invalidOwnerFeeAccount";
+            "msg": "Invalid Owner Fee Account";
+        },
+        {
+            "code": 6017;
+            "name": "invalidDataProviderPaymentAccount";
+            "msg": "Invalid Data Provider Payment Account";
+        },
+        {
+            "code": 6018;
+            "name": "invalidOwnerPaymentAccount";
+            "msg": "Invalid Owner Payment Account";
         }
     ];
     "types": [
+        {
+            "name": "agentRegistration";
+            "type": {
+                "kind": "struct";
+                "fields": [
+                    {
+                        "name": "address";
+                        "type": "pubkey";
+                    },
+                    {
+                        "name": "name";
+                        "type": "string";
+                    },
+                    {
+                        "name": "description";
+                        "type": "string";
+                    },
+                    {
+                        "name": "restrictSubscriptions";
+                        "type": "bool";
+                    },
+                    {
+                        "name": "text";
+                        "type": "bool";
+                    },
+                    {
+                        "name": "photo";
+                        "type": "bool";
+                    },
+                    {
+                        "name": "video";
+                        "type": "bool";
+                    },
+                    {
+                        "name": "telegram";
+                        "type": "bool";
+                    },
+                    {
+                        "name": "twitter";
+                        "type": "bool";
+                    },
+                    {
+                        "name": "discord";
+                        "type": "bool";
+                    }
+                ];
+            };
+        },
         {
             "name": "collectorFeeUpdatedEvent";
             "type": {
@@ -980,6 +1808,10 @@ export type SubscriptionManager = {
                 "kind": "struct";
                 "fields": [
                     {
+                        "name": "owner";
+                        "type": "pubkey";
+                    },
+                    {
                         "name": "fee";
                         "type": "u64";
                     }
@@ -994,6 +1826,20 @@ export type SubscriptionManager = {
                     {
                         "name": "newFeePerDay";
                         "type": "u64";
+                    }
+                ];
+            };
+        },
+        {
+            "name": "mySubscriptions";
+            "type": {
+                "kind": "struct";
+                "fields": [
+                    {
+                        "name": "providers";
+                        "type": {
+                            "vec": "pubkey";
+                        };
                     }
                 ];
             };
@@ -1060,6 +1906,22 @@ export type SubscriptionManager = {
                     {
                         "name": "quality";
                         "type": "u8";
+                    }
+                ];
+            };
+        },
+        {
+            "name": "requests";
+            "type": {
+                "kind": "struct";
+                "fields": [
+                    {
+                        "name": "subscriberPubkey";
+                        "type": "pubkey";
+                    },
+                    {
+                        "name": "approved";
+                        "type": "bool";
                     }
                 ];
             };
@@ -1206,6 +2068,24 @@ export type SubscriptionManager = {
                     {
                         "name": "timestamp";
                         "type": "i64";
+                    }
+                ];
+            };
+        },
+        {
+            "name": "subscriptionRequests";
+            "type": {
+                "kind": "struct";
+                "fields": [
+                    {
+                        "name": "requests";
+                        "type": {
+                            "vec": {
+                                "defined": {
+                                    "name": "requests";
+                                };
+                            };
+                        };
                     }
                 ];
             };
