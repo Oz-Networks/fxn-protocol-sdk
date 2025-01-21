@@ -80,16 +80,38 @@ export interface CreateSubscriptionParams {
     nftTokenAccount: PublicKey;
 }
 
+export interface RequestSubscriptionParams {
+    dataProvider: PublicKey;
+}
+
+export interface ApproveSubscriptionRequestParams {
+    subscriberAddress: PublicKey;
+    requestIndex: number;
+}
+
 export interface SubscriptionListParams {
     dataProvider: PublicKey;
 }
 
 interface _SubscriptionListParams {
-    subscriber: PublicKey,
-    dataProvider: PublicKey,
-    mySubscriptionsPDA: PublicKey,
-    subscribersListPDA: PublicKey,
+    subscriber: PublicKey;
+    dataProvider: PublicKey;
+    mySubscriptionsPDA: PublicKey;
+    subscribersListPDA: PublicKey;
 } 
+
+export interface AgentParams {
+    name: string;
+    description: string;
+    restrict_subscriptions: boolean;
+    text: boolean;
+    photo: boolean;
+    video: boolean;
+    telegram: boolean;
+    twitter: boolean;
+    discord: boolean;
+    fee: number;
+}
 
 export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
@@ -110,6 +132,161 @@ export class SolanaAdapter {
             IDL as SubscriptionManager,
             provider
         );
+    }
+
+    async registerAgent(params: AgentParams): Promise<TransactionSignature> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const dataProvider = this.provider.wallet.publicKey;
+            const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("agent_registration"), dataProvider.toBuffer()],
+                this.program.programId
+             );
+             const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
+                 [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
+                 this.program.programId
+              );
+              const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
+               [Buffer.from("fee"), dataProvider.toBuffer()],
+               this.program.programId
+             );
+
+             const txHash = await this.program.methods
+                .registerAgent(
+                    params.name,
+                    params.description,
+                    params.restrict_subscriptions,
+                    params.text,
+                    params.photo,
+                    params.video,
+                    params.telegram,
+                    params.twitter,
+                    params.discord,
+                    params.fee
+                )
+                .accounts({
+                    agentRegistration: agentRegistrationPDA,
+                    subscriptionRequests: subscriptionRequestsPDA,
+                    dataProviderFee: dataProviderFeePDA,
+                    dataProvider: dataProvider,
+                    SystemProgram: SystemProgram.programId,
+                } as any)
+                .rpc();
+
+                return txHash;
+        } catch (error) {
+            console.error('Error registering agent:', error);
+            throw this.handleError(error);
+        }
+
+    }
+
+    async editAgentDetails(params: AgentParams): Promise<TransactionSignature> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const dataProvider = this.provider.wallet.publicKey;
+            const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("agent_registration"), dataProvider.toBuffer()],
+                this.program.programId
+             );
+             const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
+                 [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
+                 this.program.programId
+              );
+              const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
+               [Buffer.from("fee"), dataProvider.toBuffer()],
+               this.program.programId
+             );
+
+             const txHash = await this.program.methods
+                .editAgentData(
+                    params.name,
+                    params.description,
+                    params.restrict_subscriptions,
+                    params.text,
+                    params.photo,
+                    params.video,
+                    params.telegram,
+                    params.twitter,
+                    params.discord,
+                    params.fee
+                )
+                .accounts({
+                    agentRegistration: agentRegistrationPDA,
+                    subscriptionRequests: subscriptionRequestsPDA,
+                    dataProviderFee: dataProviderFeePDA,
+                    dataProvider: dataProvider,
+                    SystemProgram: SystemProgram.programId,
+                } as any)
+                .rpc();
+
+                return txHash;
+        } catch (error) {
+            console.error('Error registering agent:', error);
+            throw this.handleError(error);
+        }
+
+    }
+
+    async requestSubscription(params: RequestSubscriptionParams): Promise<TransactionSignature> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const subscriber = this.provider.wallet.publicKey;
+            const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
+
+            const txHash = await this.program.methods
+                .requestSubscription()
+                .accounts({
+                    subscriber: subscriber,
+                    dataProvider: params.dataProvider,
+                    subscriptionRequests: pdas.subscriptionRequestsPDA,
+                    SystemProgram: SystemProgram.programId,
+                } as any)
+                .rpc();
+
+            return txHash;
+        } catch (error) {
+            console.error('Error requesting subscription:', error);
+            throw this.handleError(error);
+        }
+    }
+
+    async approveSubscriptionRequest(params: ApproveSubscriptionRequestParams): Promise<TransactionSignature> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const dataProvider = this.provider.wallet.publicKey;
+            const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
+                this.program.programId
+             );
+
+            const txHash = await this.program.methods
+                .approveSubscriptionRequest(new BN(params.requestIndex))
+                .accounts({
+                    subscriber: params.subscriberAddress,
+                    dataProvider: dataProvider,
+                    subscriptionRequests: subscriptionRequestsPDA,
+                    SystemProgram: SystemProgram.programId,
+                } as any)
+                .rpc();
+
+            return txHash;
+        } catch (error) {
+            console.error('Error approving subscription request:', error);
+            throw this.handleError(error);
+        }
     }
 
     // adapters/solana-adapter.ts
@@ -150,6 +327,14 @@ export class SolanaAdapter {
         try {
             const subscriber = this.provider.wallet.publicKey;
             const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
+            const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("subscription_requests"), params.dataProvider.toBuffer()],
+                this.program.programId
+             );
+             const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("agent_registration"), params.dataProvider.toBuffer()],
+                this.program.programId
+             );
             // Get the state account to get the correct owner
             const state = await this.program.account.state.fetch(pdas.statePDA);
 
@@ -181,6 +366,8 @@ export class SolanaAdapter {
                     dataProviderPaymentAta: dp_payment_ata,
                     subscriberPaymentAta: subscriber_payment_ata,
                     ownerPaymentAta: owner_payment_ata,
+                    agentRegistration: agentRegistrationPDA,
+                    subscriptionRequests: subscriptionRequestsPDA,
                     systemProgram: SystemProgram.programId,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     nftTokenAccount: params.nftTokenAccount,
@@ -582,6 +769,7 @@ export class SolanaAdapter {
         subscribersListPDA: PublicKey;
         dataProviderFeePDA: PublicKey;
         mySubscriptionsPDA: PublicKey;
+        subscriptionRequestsPDA: PublicKey;
     } {
         const [statePDA] = PublicKey.findProgramAddressSync(
             [Buffer.from("state storage")],
@@ -608,12 +796,17 @@ export class SolanaAdapter {
         );
 
         const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
-            [Buffer.from("fee"), dataProvider.toBuffer()],
+            [Buffer.from("data_provider_fee"), dataProvider.toBuffer()],
             this.program.programId
         );
 
         const [mySubscriptionsPDA] = PublicKey.findProgramAddressSync(
             [Buffer.from("my_subscriptions"), subscriber.toBuffer()],
+            this.program.programId
+        );
+
+        const [subscriptionRequestsPDA] = PublicKey.findProgramAddressSync(
+            [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
             this.program.programId
         );
 
@@ -624,6 +817,7 @@ export class SolanaAdapter {
             subscribersListPDA,
             dataProviderFeePDA,
             mySubscriptionsPDA,
+            subscriptionRequestsPDA,
         };
     }
 
