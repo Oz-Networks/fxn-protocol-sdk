@@ -52,7 +52,7 @@ class SolanaAdapter {
                 const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
                 const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
                 const txHash = yield this.program.methods
-                    .registerAgent(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, params.fee)
+                    .registerAgent(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, new anchor_1.BN(params.fee))
                     .accounts({
                     agentRegistration: agentRegistrationPDA,
                     subscriptionRequests: subscriptionRequestsPDA,

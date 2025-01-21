@@ -165,7 +165,7 @@ export class SolanaAdapter {
                     params.telegram,
                     params.twitter,
                     params.discord,
-                    params.fee
+                    new BN(params.fee)
                 )
                 .accounts({
                     agentRegistration: agentRegistrationPDA,
