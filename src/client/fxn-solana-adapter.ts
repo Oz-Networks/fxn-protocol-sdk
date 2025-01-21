@@ -2,6 +2,7 @@
 
 import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
 import {
+    LAMPORTS_PER_SOL,
     PublicKey,
     SystemProgram,
     TransactionSignature
@@ -154,6 +155,8 @@ export class SolanaAdapter {
                this.program.programId
              );
 
+             const fee = new BN(params.fee * LAMPORTS_PER_SOL);
+
              const txHash = await this.program.methods
                 .registerAgent(
                     params.name,
@@ -165,7 +168,7 @@ export class SolanaAdapter {
                     params.telegram,
                     params.twitter,
                     params.discord,
-                    new BN(params.fee)
+                    fee
                 )
                 .accounts({
                     agentRegistration: agentRegistrationPDA,
@@ -204,6 +207,8 @@ export class SolanaAdapter {
                this.program.programId
              );
 
+             const fee = new BN(params.fee * LAMPORTS_PER_SOL);
+
              const txHash = await this.program.methods
                 .editAgentData(
                     params.name,
@@ -215,7 +220,7 @@ export class SolanaAdapter {
                     params.telegram,
                     params.twitter,
                     params.discord,
-                    params.fee
+                    fee
                 )
                 .accounts({
                     agentRegistration: agentRegistrationPDA,
@@ -302,9 +307,10 @@ export class SolanaAdapter {
                 this.program.programId
             );
  
+            const fee = new BN(params.fee * LAMPORTS_PER_SOL);
 
             const txHash = await this.program.methods
-                .setDataProviderFee(new BN(params.fee))
+                .setDataProviderFee(fee)
                 .accounts({
                     dataProviderFee: dataProviderFeePDA,
                     dataProvider: dataProvider,
