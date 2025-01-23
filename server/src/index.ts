@@ -211,7 +211,6 @@ app.post('/cancel', async (req, res) => {
         const result = await adapter.cancelSubscription({
             dataProvider: new PublicKey(dataProvider),
             qualityScore,
-            nftTokenAccount: nftTokenAccount ? new PublicKey(nftTokenAccount) : undefined
         });
 
         res.json({ success: true, signature: result });

@@ -6,12 +6,10 @@ export interface RenewParams {
     newRecipient: string;
     newEndTime: number;
     qualityScore: number;
-    nftTokenAccount: PublicKey;
 }
 export interface CancelParams {
     dataProvider: PublicKey;
     qualityScore: number;
-    nftTokenAccount?: PublicKey;
 }
 export interface SubscriptionState {
     endTime: BN;
@@ -41,12 +39,26 @@ export declare enum SubscriptionErrorCode {
     PeriodTooShort = 6000,
     AlreadySubscribed = 6001,
     InsufficientPayment = 6002,
-    InvalidNFTHolder = 6003,
+    InvalidTokenAccount = 6003,
     SubscriptionNotFound = 6004,
     QualityOutOfRange = 6005,
     SubscriptionAlreadyEnded = 6006,
     ActiveSubscription = 6007,
-    NotOwner = 6008
+    NotOwner = 6008,
+    TooManyRequests = 6009,
+    NoSubscriptionRequest = 6010,
+    RequestNotApproved = 6011,
+    Unauthorized = 6012,
+    InvalidDataProvider = 6013,
+    InvalidDataProviderFeeAccount = 6014,
+    InvalidOwnerFeeAccount = 6015,
+    InvalidDataProviderPaymentAccount = 6016,
+    InvalidOwnerPaymentAccount = 6017,
+    TooManySubscriptions = 6018,
+    TooManySubscribers = 6019,
+    InvalidIndex = 6020,
+    AlreadyApproved = 6021,
+    InvalidSubscriber = 6022
 }
 export interface CreateSubscriptionParams {
     dataProvider: PublicKey;
@@ -101,7 +113,6 @@ export declare class SolanaAdapter {
     initSubscribersList(params: _SubscriptionListParams): Promise<TransactionSignature>;
     addSubscriptionsLists(params: _SubscriptionListParams): Promise<TransactionSignature>;
     getSubscriptionStatus(endTime: BN): 'active' | 'expired' | 'expiring_soon';
-    getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey>;
     getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]>;
     getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionDetails[]>;
     renewSubscription(params: RenewParams): Promise<TransactionSignature>;

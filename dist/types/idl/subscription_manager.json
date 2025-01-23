@@ -212,13 +212,6 @@
                             }
                         ]
                     }
-                },
-                {
-                    "name": "token_program",
-                    "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                },
-                {
-                    "name": "nft_token_account"
                 }
             ],
             "args": [
@@ -1736,6 +1729,31 @@
             "code": 6017,
             "name": "InvalidOwnerPaymentAccount",
             "msg": "Invalid Owner Payment Account"
+        },
+        {
+            "code": 6018,
+            "name": "TooManySubscriptions",
+            "msg": "Too Many Subscriptions"
+        },
+        {
+            "code": 6019,
+            "name": "TooManySubscribers",
+            "msg": "Too Many Subscribers"
+        },
+        {
+            "code": 6020,
+            "name": "InvalidIndex",
+            "msg": "Invalid index"
+        },
+        {
+            "code": 6021,
+            "name": "AlreadyApproved",
+            "msg": "Already approved"
+        },
+        {
+            "code": 6022,
+            "name": "InvalidSubscriber",
+            "msg": "Invalid subscriber"
         }
     ],
     "types": [

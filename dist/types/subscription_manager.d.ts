@@ -218,13 +218,6 @@ export type SubscriptionManager = {
                             }
                         ];
                     };
-                },
-                {
-                    "name": "tokenProgram";
-                    "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-                },
-                {
-                    "name": "nftTokenAccount";
                 }
             ];
             "args": [
@@ -1742,6 +1735,31 @@ export type SubscriptionManager = {
             "code": 6017;
             "name": "invalidOwnerPaymentAccount";
             "msg": "Invalid Owner Payment Account";
+        },
+        {
+            "code": 6018;
+            "name": "tooManySubscriptions";
+            "msg": "Too Many Subscriptions";
+        },
+        {
+            "code": 6019;
+            "name": "tooManySubscribers";
+            "msg": "Too Many Subscribers";
+        },
+        {
+            "code": 6020;
+            "name": "invalidIndex";
+            "msg": "Invalid index";
+        },
+        {
+            "code": 6021;
+            "name": "alreadyApproved";
+            "msg": "Already approved";
+        },
+        {
+            "code": 6022;
+            "name": "invalidSubscriber";
+            "msg": "Invalid subscriber";
         }
     ];
     "types": [

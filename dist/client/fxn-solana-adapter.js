@@ -26,12 +26,26 @@ var SubscriptionErrorCode;
     SubscriptionErrorCode[SubscriptionErrorCode["PeriodTooShort"] = 6000] = "PeriodTooShort";
     SubscriptionErrorCode[SubscriptionErrorCode["AlreadySubscribed"] = 6001] = "AlreadySubscribed";
     SubscriptionErrorCode[SubscriptionErrorCode["InsufficientPayment"] = 6002] = "InsufficientPayment";
-    SubscriptionErrorCode[SubscriptionErrorCode["InvalidNFTHolder"] = 6003] = "InvalidNFTHolder";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidTokenAccount"] = 6003] = "InvalidTokenAccount";
     SubscriptionErrorCode[SubscriptionErrorCode["SubscriptionNotFound"] = 6004] = "SubscriptionNotFound";
     SubscriptionErrorCode[SubscriptionErrorCode["QualityOutOfRange"] = 6005] = "QualityOutOfRange";
     SubscriptionErrorCode[SubscriptionErrorCode["SubscriptionAlreadyEnded"] = 6006] = "SubscriptionAlreadyEnded";
     SubscriptionErrorCode[SubscriptionErrorCode["ActiveSubscription"] = 6007] = "ActiveSubscription";
     SubscriptionErrorCode[SubscriptionErrorCode["NotOwner"] = 6008] = "NotOwner";
+    SubscriptionErrorCode[SubscriptionErrorCode["TooManyRequests"] = 6009] = "TooManyRequests";
+    SubscriptionErrorCode[SubscriptionErrorCode["NoSubscriptionRequest"] = 6010] = "NoSubscriptionRequest";
+    SubscriptionErrorCode[SubscriptionErrorCode["RequestNotApproved"] = 6011] = "RequestNotApproved";
+    SubscriptionErrorCode[SubscriptionErrorCode["Unauthorized"] = 6012] = "Unauthorized";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidDataProvider"] = 6013] = "InvalidDataProvider";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidDataProviderFeeAccount"] = 6014] = "InvalidDataProviderFeeAccount";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidOwnerFeeAccount"] = 6015] = "InvalidOwnerFeeAccount";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidDataProviderPaymentAccount"] = 6016] = "InvalidDataProviderPaymentAccount";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidOwnerPaymentAccount"] = 6017] = "InvalidOwnerPaymentAccount";
+    SubscriptionErrorCode[SubscriptionErrorCode["TooManySubscriptions"] = 6018] = "TooManySubscriptions";
+    SubscriptionErrorCode[SubscriptionErrorCode["TooManySubscribers"] = 6019] = "TooManySubscribers";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidIndex"] = 6020] = "InvalidIndex";
+    SubscriptionErrorCode[SubscriptionErrorCode["AlreadyApproved"] = 6021] = "AlreadyApproved";
+    SubscriptionErrorCode[SubscriptionErrorCode["InvalidSubscriber"] = 6022] = "InvalidSubscriber";
 })(SubscriptionErrorCode || (exports.SubscriptionErrorCode = SubscriptionErrorCode = {}));
 class SolanaAdapter {
     constructor(provider) {
@@ -346,23 +360,6 @@ class SolanaAdapter {
         }
         return 'active';
     }
-    getProviderTokenAccount(providerAddress) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const nftMint = new web3_js_1.PublicKey(index_1.config.nftTokenAddress);
-            try {
-                const tokenAccount = yield (0, spl_token_1.getAssociatedTokenAddress)(nftMint, providerAddress, false);
-                const tokenAccountInfo = yield this.provider.connection.getAccountInfo(tokenAccount);
-                if (!tokenAccountInfo) {
-                    throw new Error('Provider does not have the required NFT');
-                }
-                return tokenAccount;
-            }
-            catch (error) {
-                console.error('Error getting provider token account:', error);
-                throw this.handleError(error);
-            }
-        });
-    }
     getSubscriptionsForProvider(providerPublicKey) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -493,7 +490,6 @@ class SolanaAdapter {
                     ownerPaymentAta: owner_payment_ata,
                     systemProgram: web3_js_1.SystemProgram.programId,
                     tokenProgram: spl_token_2.TOKEN_PROGRAM_ID,
-                    nftTokenAccount: params.nftTokenAccount,
                     dpFeeAccount: pdas.dataProviderFeePDA,
                 })
                     .rpc();
@@ -520,8 +516,6 @@ class SolanaAdapter {
                     dataProvider: params.dataProvider,
                     subscription: pdas.subscriptionPDA,
                     qualityInfo: pdas.qualityPDA,
-                    tokenProgram: spl_token_2.TOKEN_PROGRAM_ID,
-                    nftTokenAccount: params.nftTokenAccount,
                 })
                     .rpc();
                 return txHash;
@@ -587,8 +581,8 @@ class SolanaAdapter {
                     return new Error('Already subscribed');
                 case SubscriptionErrorCode.InsufficientPayment:
                     return new Error('Insufficient payment');
-                case SubscriptionErrorCode.InvalidNFTHolder:
-                    return new Error('Invalid NFT holder');
+                case SubscriptionErrorCode.InvalidTokenAccount:
+                    return new Error('Invalid token account');
                 case SubscriptionErrorCode.SubscriptionNotFound:
                     return new Error('Subscription not found');
                 case SubscriptionErrorCode.QualityOutOfRange:
@@ -599,6 +593,34 @@ class SolanaAdapter {
                     return new Error('Subscription is still active');
                 case SubscriptionErrorCode.NotOwner:
                     return new Error('Not the contract owner');
+                case SubscriptionErrorCode.TooManyRequests:
+                    return new Error('Too many subscription requests');
+                case SubscriptionErrorCode.NoSubscriptionRequest:
+                    return new Error('No subscription request found');
+                case SubscriptionErrorCode.RequestNotApproved:
+                    return new Error('Subscription request not approved');
+                case SubscriptionErrorCode.Unauthorized:
+                    return new Error('Unauthorized');
+                case SubscriptionErrorCode.InvalidDataProvider:
+                    return new Error('Invalid data provider');
+                case SubscriptionErrorCode.InvalidDataProviderFeeAccount:
+                    return new Error('Invalid data provider fee account');
+                case SubscriptionErrorCode.InvalidOwnerFeeAccount:
+                    return new Error('Invalid owner fee account');
+                case SubscriptionErrorCode.InvalidDataProviderPaymentAccount:
+                    return new Error('Invalid data provider payment account');
+                case SubscriptionErrorCode.InvalidOwnerPaymentAccount:
+                    return new Error('Invalid owner payment account');
+                case SubscriptionErrorCode.TooManySubscriptions:
+                    return new Error('Too many subscriptions');
+                case SubscriptionErrorCode.TooManySubscribers:
+                    return new Error('Too many subscribers');
+                case SubscriptionErrorCode.InvalidIndex:
+                    return new Error('Invalid index');
+                case SubscriptionErrorCode.AlreadyApproved:
+                    return new Error('Already approved');
+                case SubscriptionErrorCode.InvalidSubscriber:
+                    return new Error('Invalid subscriber');
                 default:
                     return new Error(`Unknown error: ${error.message}`);
             }

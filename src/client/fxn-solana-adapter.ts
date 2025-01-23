@@ -26,7 +26,6 @@ export interface RenewParams {
 export interface CancelParams {
     dataProvider: PublicKey;
     qualityScore: number;
-    nftTokenAccount?: PublicKey;
 }
 
 export interface SubscriptionState {
@@ -65,12 +64,26 @@ export enum SubscriptionErrorCode {
     PeriodTooShort = 6000,
     AlreadySubscribed = 6001,
     InsufficientPayment = 6002,
-    InvalidNFTHolder = 6003,
+    InvalidTokenAccount = 6003,
     SubscriptionNotFound = 6004,
     QualityOutOfRange = 6005,
     SubscriptionAlreadyEnded = 6006,
     ActiveSubscription = 6007,
     NotOwner = 6008,
+    TooManyRequests = 6009,
+    NoSubscriptionRequest = 6010,
+    RequestNotApproved = 6011,
+    Unauthorized = 6012,
+    InvalidDataProvider = 6013,
+    InvalidDataProviderFeeAccount = 6014,
+    InvalidOwnerFeeAccount = 6015,
+    InvalidDataProviderPaymentAccount = 6016,
+    InvalidOwnerPaymentAccount = 6017,
+    TooManySubscriptions = 6018,
+    TooManySubscribers = 6019,
+    InvalidIndex = 6020,
+    AlreadyApproved = 6021,
+    InvalidSubscriber = 6022,
 }
 
 export interface CreateSubscriptionParams {
@@ -517,28 +530,6 @@ export class SolanaAdapter {
         return 'active';
     }
 
-    async getProviderTokenAccount(providerAddress: PublicKey): Promise<PublicKey> {
-        const nftMint = new PublicKey(config.nftTokenAddress!);
-
-        try {
-            const tokenAccount = await getAssociatedTokenAddress(
-                nftMint,
-                providerAddress,
-                false
-            );
-
-            const tokenAccountInfo = await this.provider.connection.getAccountInfo(tokenAccount);
-            if (!tokenAccountInfo) {
-                throw new Error('Provider does not have the required NFT');
-            }
-
-            return tokenAccount;
-        } catch (error) {
-            console.error('Error getting provider token account:', error);
-            throw this.handleError(error);
-        }
-    }
-
     async getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]> {
         try {
             // Get the subscribers list PDA
@@ -745,8 +736,6 @@ export class SolanaAdapter {
                     dataProvider: params.dataProvider,
                     subscription: pdas.subscriptionPDA,
                     qualityInfo: pdas.qualityPDA,
-                    tokenProgram: TOKEN_PROGRAM_ID,
-                    nftTokenAccount: params.nftTokenAccount,
                 } as any)
                 .rpc();
 
@@ -848,8 +837,8 @@ export class SolanaAdapter {
                     return new Error('Already subscribed');
                 case SubscriptionErrorCode.InsufficientPayment:
                     return new Error('Insufficient payment');
-                case SubscriptionErrorCode.InvalidNFTHolder:
-                    return new Error('Invalid NFT holder');
+                case SubscriptionErrorCode.InvalidTokenAccount:
+                    return new Error('Invalid token account');
                 case SubscriptionErrorCode.SubscriptionNotFound:
                     return new Error('Subscription not found');
                 case SubscriptionErrorCode.QualityOutOfRange:
@@ -860,6 +849,34 @@ export class SolanaAdapter {
                     return new Error('Subscription is still active');
                 case SubscriptionErrorCode.NotOwner:
                     return new Error('Not the contract owner');
+                case SubscriptionErrorCode.TooManyRequests:
+                    return new Error('Too many subscription requests');
+                case SubscriptionErrorCode.NoSubscriptionRequest:
+                    return new Error('No subscription request found');
+                case SubscriptionErrorCode.RequestNotApproved:
+                    return new Error('Subscription request not approved');
+                case SubscriptionErrorCode.Unauthorized:
+                    return new Error('Unauthorized');
+                case SubscriptionErrorCode.InvalidDataProvider:
+                    return new Error('Invalid data provider');
+                case SubscriptionErrorCode.InvalidDataProviderFeeAccount:
+                    return new Error('Invalid data provider fee account');
+                case SubscriptionErrorCode.InvalidOwnerFeeAccount:
+                    return new Error('Invalid owner fee account');
+                case SubscriptionErrorCode.InvalidDataProviderPaymentAccount:
+                    return new Error('Invalid data provider payment account');
+                case SubscriptionErrorCode.InvalidOwnerPaymentAccount:
+                    return new Error('Invalid owner payment account');
+                case SubscriptionErrorCode.TooManySubscriptions:
+                    return new Error('Too many subscriptions');
+                case SubscriptionErrorCode.TooManySubscribers:
+                    return new Error('Too many subscribers');
+                case SubscriptionErrorCode.InvalidIndex:
+                    return new Error('Invalid index');
+                case SubscriptionErrorCode.AlreadyApproved:
+                    return new Error('Already approved');
+                case SubscriptionErrorCode.InvalidSubscriber:
+                    return new Error('Invalid subscriber');
                 default:
                     return new Error(`Unknown error: ${error.message}`);
             }
