@@ -78,7 +78,6 @@ export interface CreateSubscriptionParams {
     dataProvider: PublicKey;
     recipient: string;
     durationInDays: number;
-    nftTokenAccount: PublicKey;
 }
 
 export interface RequestSubscriptionParams {
@@ -145,19 +144,30 @@ export class SolanaAdapter {
             const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
                 [Buffer.from("agent_registration"), dataProvider.toBuffer()],
                 this.program.programId
-             );
-             const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
+            );
+            const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
                  [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
                  this.program.programId
-              );
-              const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
+            );
+            const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
                [Buffer.from("data_provider_fee"), dataProvider.toBuffer()],
                this.program.programId
-             );
+            );
+            const [statePDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("state storage")],
+                this.program.programId
+            );
 
-             const fee = new BN(params.fee * LAMPORTS_PER_SOL);
+            const fxnMintAddress = new PublicKey(config.fxnMintAddress!);
 
-             const txHash = await this.program.methods
+            const dp_payment_ata = await getAssociatedTokenAddress(
+                fxnMintAddress,
+                dataProvider,
+            );
+
+            const fee = new BN(params.fee * LAMPORTS_PER_SOL);
+
+            const txHash = await this.program.methods
                 .registerAgent(
                     params.name,
                     params.description,
@@ -174,12 +184,16 @@ export class SolanaAdapter {
                     agentRegistration: agentRegistrationPDA,
                     subscriptionRequests: subscriptionRequestsPDA,
                     dataProviderFee: dataProviderFeePDA,
+                    dataProviderPaymentAta: dp_payment_ata,
                     dataProvider: dataProvider,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    tokenMintAccount: fxnMintAddress,
+                    state: statePDA,
                     SystemProgram: SystemProgram.programId,
                 } as any)
                 .rpc();
 
-                return txHash;
+            return txHash;
         } catch (error) {
             console.error('Error registering agent:', error);
             throw this.handleError(error);
@@ -231,7 +245,7 @@ export class SolanaAdapter {
                 } as any)
                 .rpc();
 
-                return txHash;
+            return txHash;
         } catch (error) {
             console.error('Error registering agent:', error);
             throw this.handleError(error);
@@ -376,7 +390,6 @@ export class SolanaAdapter {
                     subscriptionRequests: subscriptionRequestsPDA,
                     systemProgram: SystemProgram.programId,
                     tokenProgram: TOKEN_PROGRAM_ID,
-                    nftTokenAccount: params.nftTokenAccount,
                     dpFeeAccount: pdas.dataProviderFeePDA,
                 } as any)
                 .rpc();

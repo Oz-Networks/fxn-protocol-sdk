@@ -912,9 +912,24 @@ export type SubscriptionManager = {
                     };
                 },
                 {
+                    "name": "dataProviderPaymentAta";
+                    "writable": true;
+                },
+                {
                     "name": "dataProvider";
                     "writable": true;
                     "signer": true;
+                },
+                {
+                    "name": "tokenProgram";
+                    "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+                },
+                {
+                    "name": "tokenMintAccount";
+                    "writable": true;
+                },
+                {
+                    "name": "state";
                 },
                 {
                     "name": "systemProgram";
@@ -1071,11 +1086,7 @@ export type SubscriptionManager = {
                     "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
                 },
                 {
-                    "name": "nftTokenAccount";
-                },
-                {
                     "name": "dpFeeAccount";
-                    "writable": true;
                 }
             ];
             "args": [
@@ -1427,9 +1438,6 @@ export type SubscriptionManager = {
                     "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
                 },
                 {
-                    "name": "nftTokenAccount";
-                },
-                {
                     "name": "dpFeeAccount";
                 }
             ];
@@ -1667,76 +1675,71 @@ export type SubscriptionManager = {
         },
         {
             "code": 6004;
-            "name": "invalidNftHolder";
-            "msg": "Invalid NFT holder";
-        },
-        {
-            "code": 6005;
             "name": "subscriptionNotFound";
             "msg": "Subscription not found";
         },
         {
-            "code": 6006;
+            "code": 6005;
             "name": "qualityOutOfRange";
             "msg": "Quality out of range";
         },
         {
-            "code": 6007;
+            "code": 6006;
             "name": "subscriptionAlreadyEnded";
             "msg": "Subscription has already ended";
         },
         {
-            "code": 6008;
+            "code": 6007;
             "name": "activeSubscription";
             "msg": "Subscription is still active";
         },
         {
-            "code": 6009;
+            "code": 6008;
             "name": "notOwner";
             "msg": "Not the contract owner";
         },
         {
-            "code": 6010;
+            "code": 6009;
             "name": "tooManyRequests";
             "msg": "Too Many Requests";
         },
         {
-            "code": 6011;
+            "code": 6010;
             "name": "noSubscriptionRequest";
             "msg": "No Subscription Request Found";
         },
         {
-            "code": 6012;
+            "code": 6011;
             "name": "requestNotApproved";
             "msg": "Request Not Approved";
         },
         {
-            "code": 6013;
+            "code": 6012;
             "name": "unauthorized";
             "msg": "unauthorized";
         },
         {
-            "code": 6014;
+            "code": 6013;
             "name": "invalidDataProvider";
             "msg": "Invalid Data Provider";
         },
         {
-            "code": 6015;
+            "code": 6014;
             "name": "invalidDataProviderFeeAccount";
             "msg": "Invalid Data Provider Fee Account";
         },
         {
-            "code": 6016;
+            "code": 6015;
             "name": "invalidOwnerFeeAccount";
             "msg": "Invalid Owner Fee Account";
         },
         {
-            "code": 6017;
+            "code": 6016;
             "name": "invalidDataProviderPaymentAccount";
             "msg": "Invalid Data Provider Payment Account";
         },
         {
-            "code": 6018;
+            "code": 6017;
             "name": "invalidOwnerPaymentAccount";
             "msg": "Invalid Owner Payment Account";
         }

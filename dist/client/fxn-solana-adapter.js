@@ -50,14 +50,22 @@ class SolanaAdapter {
                 const dataProvider = this.provider.wallet.publicKey;
                 const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_registration"), dataProvider.toBuffer()], this.program.programId);
                 const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
-                const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
+                const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
+                const [statePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("state storage")], this.program.programId);
+                const fxnMintAddress = new web3_js_1.PublicKey(index_1.config.fxnMintAddress);
+                const dp_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, dataProvider);
+                const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
                 const txHash = yield this.program.methods
-                    .registerAgent(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, new anchor_1.BN(params.fee))
+                    .registerAgent(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, fee)
                     .accounts({
                     agentRegistration: agentRegistrationPDA,
                     subscriptionRequests: subscriptionRequestsPDA,
                     dataProviderFee: dataProviderFeePDA,
+                    dataProviderPaymentAta: dp_payment_ata,
                     dataProvider: dataProvider,
+                    tokenProgram: spl_token_2.TOKEN_PROGRAM_ID,
+                    tokenMintAccount: fxnMintAddress,
+                    state: statePDA,
                     SystemProgram: web3_js_1.SystemProgram.programId,
                 })
                     .rpc();
@@ -78,9 +86,10 @@ class SolanaAdapter {
                 const dataProvider = this.provider.wallet.publicKey;
                 const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_registration"), dataProvider.toBuffer()], this.program.programId);
                 const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
-                const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
+                const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
+                const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
                 const txHash = yield this.program.methods
-                    .editAgentData(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, params.fee)
+                    .editAgentData(params.name, params.description, params.restrict_subscriptions, params.text, params.photo, params.video, params.telegram, params.twitter, params.discord, fee)
                     .accounts({
                     agentRegistration: agentRegistrationPDA,
                     subscriptionRequests: subscriptionRequestsPDA,
@@ -155,9 +164,10 @@ class SolanaAdapter {
             }
             try {
                 const dataProvider = this.provider.wallet.publicKey;
-                const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("fee"), dataProvider.toBuffer()], this.program.programId);
+                const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
+                const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
                 const txHash = yield this.program.methods
-                    .setDataProviderFee(new anchor_1.BN(params.fee))
+                    .setDataProviderFee(fee)
                     .accounts({
                     dataProviderFee: dataProviderFeePDA,
                     dataProvider: dataProvider,
@@ -204,7 +214,6 @@ class SolanaAdapter {
                     subscriptionRequests: subscriptionRequestsPDA,
                     systemProgram: web3_js_1.SystemProgram.programId,
                     tokenProgram: spl_token_2.TOKEN_PROGRAM_ID,
-                    nftTokenAccount: params.nftTokenAccount,
                     dpFeeAccount: pdas.dataProviderFeePDA,
                 })
                     .rpc();

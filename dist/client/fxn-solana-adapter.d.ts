@@ -52,7 +52,6 @@ export interface CreateSubscriptionParams {
     dataProvider: PublicKey;
     recipient: string;
     durationInDays: number;
-    nftTokenAccount: PublicKey;
 }
 export interface RequestSubscriptionParams {
     dataProvider: PublicKey;

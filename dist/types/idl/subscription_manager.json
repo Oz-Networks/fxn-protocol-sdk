@@ -906,9 +906,24 @@
                     }
                 },
                 {
+                    "name": "data_provider_payment_ata",
+                    "writable": true
+                },
+                {
                     "name": "data_provider",
                     "writable": true,
                     "signer": true
+                },
+                {
+                    "name": "token_program",
+                    "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                },
+                {
+                    "name": "token_mint_account",
+                    "writable": true
+                },
+                {
+                    "name": "state"
                 },
                 {
                     "name": "system_program",
@@ -1065,11 +1080,7 @@
                     "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                 },
                 {
-                    "name": "nft_token_account"
-                },
-                {
-                    "name": "dp_fee_account",
-                    "writable": true
+                    "name": "dp_fee_account"
                 }
             ],
             "args": [
@@ -1421,9 +1432,6 @@
                     "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                 },
                 {
-                    "name": "nft_token_account"
-                },
-                {
                     "name": "dp_fee_account"
                 }
             ],
@@ -1661,76 +1669,71 @@
         },
         {
             "code": 6004,
-            "name": "InvalidNFTHolder",
-            "msg": "Invalid NFT holder"
-        },
-        {
-            "code": 6005,
             "name": "SubscriptionNotFound",
             "msg": "Subscription not found"
         },
         {
-            "code": 6006,
+            "code": 6005,
             "name": "QualityOutOfRange",
             "msg": "Quality out of range"
         },
         {
-            "code": 6007,
+            "code": 6006,
             "name": "SubscriptionAlreadyEnded",
             "msg": "Subscription has already ended"
         },
         {
-            "code": 6008,
+            "code": 6007,
             "name": "ActiveSubscription",
             "msg": "Subscription is still active"
         },
         {
-            "code": 6009,
+            "code": 6008,
             "name": "NotOwner",
             "msg": "Not the contract owner"
         },
         {
-            "code": 6010,
+            "code": 6009,
             "name": "TooManyRequests",
             "msg": "Too Many Requests"
         },
         {
-            "code": 6011,
+            "code": 6010,
             "name": "NoSubscriptionRequest",
             "msg": "No Subscription Request Found"
         },
         {
-            "code": 6012,
+            "code": 6011,
             "name": "RequestNotApproved",
             "msg": "Request Not Approved"
         },
         {
-            "code": 6013,
+            "code": 6012,
             "name": "Unauthorized",
             "msg": "Unauthorized"
         },
         {
-            "code": 6014,
+            "code": 6013,
             "name": "InvalidDataProvider",
             "msg": "Invalid Data Provider"
         },
         {
-            "code": 6015,
+            "code": 6014,
             "name": "InvalidDataProviderFeeAccount",
             "msg": "Invalid Data Provider Fee Account"
         },
         {
-            "code": 6016,
+            "code": 6015,
             "name": "InvalidOwnerFeeAccount",
             "msg": "Invalid Owner Fee Account"
         },
         {
-            "code": 6017,
+            "code": 6016,
             "name": "InvalidDataProviderPaymentAccount",
             "msg": "Invalid Data Provider Payment Account"
         },
         {
-            "code": 6018,
+            "code": 6017,
             "name": "InvalidOwnerPaymentAccount",
             "msg": "Invalid Owner Payment Account"
         }
