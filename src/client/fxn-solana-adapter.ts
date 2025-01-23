@@ -21,7 +21,6 @@ export interface RenewParams {
     newRecipient: string;
     newEndTime: number;
     qualityScore: number;
-    nftTokenAccount: PublicKey;
 }
 
 export interface CancelParams {
@@ -719,7 +718,6 @@ export class SolanaAdapter {
                     ownerPaymentAta: owner_payment_ata,
                     systemProgram: SystemProgram.programId,
                     tokenProgram: TOKEN_PROGRAM_ID,
-                    nftTokenAccount: params.nftTokenAccount,
                     dpFeeAccount: pdas.dataProviderFeePDA,
                 } as any)
                 .rpc();

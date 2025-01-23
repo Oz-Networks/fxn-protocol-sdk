@@ -50,17 +50,131 @@ const createDefaultProvider = (publicKeyStr: string) => {
     );
 };
 
+// Register Agent endpoint
+app.post('/agent', async (req, res) => {
+    try {
+        const { 
+            provider, 
+            name, 
+            description, 
+            restrict_subscriptions, 
+            textPosts,
+            imagePosts,
+            videoPosts,
+            telegram,
+            twitter,
+            discord,
+            fee
+        } = req.body;
+        const adapter = getAdapter(provider);
+
+        const result = await adapter.registerAgent({
+            name,
+            description,
+            restrict_subscriptions,
+            text: textPosts,
+            photo: imagePosts,
+            video: videoPosts,
+            telegram,
+            twitter,
+            discord,
+            fee,
+        });
+
+        res.json({ success: true, signature: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Edit Agent endpoint
+app.put('/agent', async (req, res) => {
+    try {
+        const { 
+            provider, 
+            dataProvider, 
+            name, 
+            description, 
+            restrict_subscriptions, 
+            textPosts,
+            imagePosts,
+            videoPosts,
+            telegram,
+            twitter,
+            discord,
+            fee
+        } = req.body;
+        const adapter = getAdapter(provider);
+
+        const result = await adapter.editAgentDetails({
+            name,
+            description,
+            restrict_subscriptions,
+            text: textPosts,
+            photo: imagePosts,
+            video: videoPosts,
+            telegram,
+            twitter,
+            discord,
+            fee,
+        });
+
+        res.json({ success: true, signature: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Request Subscription endpoint
+app.post('/subscribe/request', async (req, res) => {
+    try {
+        const { 
+            provider, 
+            dataProvider, 
+        } = req.body;
+        const adapter = getAdapter(provider);
+
+        const result = await adapter.requestSubscription({
+            dataProvider: new PublicKey(dataProvider),
+        });
+
+        res.json({ success: true, signature: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Approve Subscription endpoint
+app.post('/subscribe/approve', async (req, res) => {
+    try {
+        const { 
+            provider, 
+            subscriberAddress,
+            requestIndex
+        } = req.body;
+        const adapter = getAdapter(provider);
+
+        const result = await adapter.approveSubscriptionRequest({
+            subscriberAddress,
+            requestIndex
+        });
+
+        res.json({ success: true, signature: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Subscribe endpoint
 app.post('/subscribe', async (req, res) => {
     try {
-        const { provider, dataProvider, recipient, durationInDays, nftTokenAccount } = req.body;
+        const { provider, dataProvider, recipient, durationInDays } = req.body;
         const adapter = getAdapter(provider);
 
         const result = await adapter.createSubscription({
             dataProvider: new PublicKey(dataProvider),
             recipient,
             durationInDays,
-            nftTokenAccount: new PublicKey(nftTokenAccount)
         });
 
         res.json({ success: true, signature: result });
@@ -80,7 +194,6 @@ app.post('/renew', async (req, res) => {
             newRecipient,
             newEndTime,
             qualityScore,
-            nftTokenAccount: new PublicKey(nftTokenAccount)
         });
 
         res.json({ success: true, signature: result });
