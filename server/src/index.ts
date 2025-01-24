@@ -82,7 +82,6 @@ app.put('/agent', async (req, res) => {
     try {
         const { 
             provider, 
-            dataProvider, 
             name, 
             description, 
             restrict_subscriptions, 

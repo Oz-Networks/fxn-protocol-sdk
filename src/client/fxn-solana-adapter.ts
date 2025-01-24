@@ -116,7 +116,7 @@ export interface AgentParams {
     name: string;
     description: string;
     restrict_subscriptions: boolean;
-    capabilities: [string];
+    capabilities: string[];
     fee: number;
 }
 
