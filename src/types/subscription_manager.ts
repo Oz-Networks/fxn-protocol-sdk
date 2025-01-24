@@ -302,28 +302,10 @@ export type SubscriptionManager = {
           "type": "bool"
         },
         {
-          "name": "text",
-          "type": "bool"
-        },
-        {
-          "name": "photo",
-          "type": "bool"
-        },
-        {
-          "name": "video",
-          "type": "bool"
-        },
-        {
-          "name": "telegram",
-          "type": "bool"
-        },
-        {
-          "name": "twitter",
-          "type": "bool"
-        },
-        {
-          "name": "discord",
-          "type": "bool"
+          "name": "capabilities",
+          "type": {
+            "vec": "string"
+          }
         },
         {
           "name": "fee",
@@ -811,6 +793,14 @@ export type SubscriptionManager = {
                   110,
                   116,
                   95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101,
+                  95,
                   114,
                   101,
                   103,
@@ -943,28 +933,10 @@ export type SubscriptionManager = {
           "type": "bool"
         },
         {
-          "name": "text",
-          "type": "bool"
-        },
-        {
-          "name": "photo",
-          "type": "bool"
-        },
-        {
-          "name": "video",
-          "type": "bool"
-        },
-        {
-          "name": "telegram",
-          "type": "bool"
-        },
-        {
-          "name": "twitter",
-          "type": "bool"
-        },
-        {
-          "name": "discord",
-          "type": "bool"
+          "name": "capabilities",
+          "type": {
+            "vec": "string"
+          }
         },
         {
           "name": "fee",
@@ -1785,28 +1757,10 @@ export type SubscriptionManager = {
             "type": "bool"
           },
           {
-            "name": "text",
-            "type": "bool"
-          },
-          {
-            "name": "photo",
-            "type": "bool"
-          },
-          {
-            "name": "video",
-            "type": "bool"
-          },
-          {
-            "name": "telegram",
-            "type": "bool"
-          },
-          {
-            "name": "twitter",
-            "type": "bool"
-          },
-          {
-            "name": "discord",
-            "type": "bool"
+            "name": "capabilities",
+            "type": {
+              "vec": "string"
+            }
           }
         ]
       }

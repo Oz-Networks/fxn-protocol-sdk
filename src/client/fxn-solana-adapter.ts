@@ -116,12 +116,7 @@ export interface AgentParams {
     name: string;
     description: string;
     restrict_subscriptions: boolean;
-    text: boolean;
-    photo: boolean;
-    video: boolean;
-    telegram: boolean;
-    twitter: boolean;
-    discord: boolean;
+    capabilities: [string];
     fee: number;
 }
 
@@ -154,7 +149,7 @@ export class SolanaAdapter {
         try {
             const dataProvider = this.provider.wallet.publicKey;
             const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
-                [Buffer.from("agent_registration"), dataProvider.toBuffer()],
+                [Buffer.from("agent_profile_registration"), dataProvider.toBuffer()],
                 this.program.programId
             );
             const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
@@ -184,12 +179,7 @@ export class SolanaAdapter {
                     params.name,
                     params.description,
                     params.restrict_subscriptions,
-                    params.text,
-                    params.photo,
-                    params.video,
-                    params.telegram,
-                    params.twitter,
-                    params.discord,
+                    params.capabilities,
                     fee
                 )
                 .accounts({
@@ -221,7 +211,7 @@ export class SolanaAdapter {
         try {
             const dataProvider = this.provider.wallet.publicKey;
             const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
-                [Buffer.from("agent_registration"), dataProvider.toBuffer()],
+                [Buffer.from("agent_profile_registration"), dataProvider.toBuffer()],
                 this.program.programId
              );
              const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
@@ -240,12 +230,7 @@ export class SolanaAdapter {
                     params.name,
                     params.description,
                     params.restrict_subscriptions,
-                    params.text,
-                    params.photo,
-                    params.video,
-                    params.telegram,
-                    params.twitter,
-                    params.discord,
+                    params.capabilities,
                     fee
                 )
                 .accounts({

@@ -25,10 +25,15 @@ export declare const IDL: {
         }[];
         name: string;
         discriminator: number[];
-        args: {
+        args: ({
             name: string;
             type: string;
-        }[];
+        } | {
+            name: string;
+            type: {
+                vec: string;
+            };
+        })[];
         returns?: undefined;
     } | {
         accounts: {
@@ -63,12 +68,15 @@ export declare const IDL: {
         name: string;
         type: {
             kind: string;
-            fields: {
+            fields: ({
+                name: string;
+                type: string;
+            } | {
                 name: string;
                 type: {
                     vec: string;
                 };
-            }[];
+            })[];
         };
     } | {
         name: string;

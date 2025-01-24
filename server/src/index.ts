@@ -58,12 +58,7 @@ app.post('/agent', async (req, res) => {
             name, 
             description, 
             restrict_subscriptions, 
-            textPosts,
-            imagePosts,
-            videoPosts,
-            telegram,
-            twitter,
-            discord,
+            capabilities,
             fee
         } = req.body;
         const adapter = getAdapter(provider);
@@ -72,12 +67,7 @@ app.post('/agent', async (req, res) => {
             name,
             description,
             restrict_subscriptions,
-            text: textPosts,
-            photo: imagePosts,
-            video: videoPosts,
-            telegram,
-            twitter,
-            discord,
+            capabilities,
             fee,
         });
 
@@ -96,12 +86,7 @@ app.put('/agent', async (req, res) => {
             name, 
             description, 
             restrict_subscriptions, 
-            textPosts,
-            imagePosts,
-            videoPosts,
-            telegram,
-            twitter,
-            discord,
+            capabilities,
             fee
         } = req.body;
         const adapter = getAdapter(provider);
@@ -110,12 +95,7 @@ app.put('/agent', async (req, res) => {
             name,
             description,
             restrict_subscriptions,
-            text: textPosts,
-            photo: imagePosts,
-            video: videoPosts,
-            telegram,
-            twitter,
-            discord,
+            capabilities,
             fee,
         });
 

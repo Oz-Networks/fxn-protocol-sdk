@@ -85,12 +85,7 @@ export interface AgentParams {
     name: string;
     description: string;
     restrict_subscriptions: boolean;
-    text: boolean;
-    photo: boolean;
-    video: boolean;
-    telegram: boolean;
-    twitter: boolean;
-    discord: boolean;
+    capabilities: [string];
     fee: number;
 }
 export interface SubscriptionStatus {
