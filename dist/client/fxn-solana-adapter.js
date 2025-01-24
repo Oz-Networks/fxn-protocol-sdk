@@ -120,6 +120,31 @@ class SolanaAdapter {
             }
         });
     }
+    getAgentDetails(dataProvider) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_profile_registration"), dataProvider.toBuffer()], this.program.programId);
+                const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
+                const agent = yield this.program.account.agentRegistration.fetch(agentRegistrationPDA);
+                const fee = yield this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
+                const agentProfile = {
+                    name: agent.name,
+                    description: agent.description,
+                    restrict_subscriptions: agent.restrictSubscriptions,
+                    capabilities: agent.capabilities,
+                    fee: fee.fee.toNumber() / web3_js_1.LAMPORTS_PER_SOL
+                };
+                return agentProfile;
+            }
+            catch (error) {
+                console.error('Error fetching agent details:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
     requestSubscription(params) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.provider.wallet.publicKey) {

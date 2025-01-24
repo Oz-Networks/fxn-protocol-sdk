@@ -213,15 +213,15 @@ export class SolanaAdapter {
             const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
                 [Buffer.from("agent_profile_registration"), dataProvider.toBuffer()],
                 this.program.programId
-             );
-             const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
-                 [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
-                 this.program.programId
-              );
-              const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
+            );
+            const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
+                this.program.programId
+            );
+            const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
                [Buffer.from("data_provider_fee"), dataProvider.toBuffer()],
                this.program.programId
-             );
+            );
 
              const fee = new BN(params.fee * LAMPORTS_PER_SOL);
 
@@ -248,6 +248,39 @@ export class SolanaAdapter {
             throw this.handleError(error);
         }
 
+    }
+
+    async getAgentDetails(dataProvider: PublicKey): Promise<AgentParams> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("agent_profile_registration"), dataProvider.toBuffer()],
+                this.program.programId
+            );
+            const [dataProviderFeePDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("data_provider_fee"), dataProvider.toBuffer()],
+                this.program.programId
+            );
+
+            const agent = await this.program.account.agentRegistration.fetch(agentRegistrationPDA);
+            const fee = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
+
+            const agentProfile: AgentParams = {
+                name: agent.name,
+                description: agent.description,
+                restrict_subscriptions: agent.restrictSubscriptions,
+                capabilities: agent.capabilities,
+                fee: fee.fee.toNumber() / LAMPORTS_PER_SOL
+            };
+
+            return agentProfile;
+        } catch (error) {
+            console.error('Error fetching agent details:', error);
+            throw this.handleError(error);
+        }
     }
 
     async requestSubscription(params: RequestSubscriptionParams): Promise<TransactionSignature> {

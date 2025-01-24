@@ -85,7 +85,7 @@ export interface AgentParams {
     name: string;
     description: string;
     restrict_subscriptions: boolean;
-    capabilities: [string];
+    capabilities: string[];
     fee: number;
 }
 export interface SubscriptionStatus {
@@ -98,6 +98,7 @@ export declare class SolanaAdapter {
     constructor(provider: AnchorProvider);
     registerAgent(params: AgentParams): Promise<TransactionSignature>;
     editAgentDetails(params: AgentParams): Promise<TransactionSignature>;
+    getAgentDetails(dataProvider: PublicKey): Promise<AgentParams>;
     requestSubscription(params: RequestSubscriptionParams): Promise<TransactionSignature>;
     approveSubscriptionRequest(params: ApproveSubscriptionRequestParams): Promise<TransactionSignature>;
     setDataProviderFee(params: SetDataProviderFeeParams): Promise<TransactionSignature>;
