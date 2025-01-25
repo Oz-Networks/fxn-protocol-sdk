@@ -92,6 +92,10 @@ export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
     subscription: SubscriptionAccount;
 }
+export interface RequestStruct {
+    subscriber_pubkey: PublicKey;
+    approved: boolean;
+}
 export declare class SolanaAdapter {
     program: Program<SubscriptionManager>;
     provider: AnchorProvider;
@@ -101,6 +105,7 @@ export declare class SolanaAdapter {
     getAgentDetails(dataProvider: PublicKey): Promise<AgentParams>;
     requestSubscription(params: RequestSubscriptionParams): Promise<TransactionSignature>;
     approveSubscriptionRequest(params: ApproveSubscriptionRequestParams): Promise<TransactionSignature>;
+    getSubscriptionRequests(dataProvider: PublicKey): Promise<Request[]>;
     setDataProviderFee(params: SetDataProviderFeeParams): Promise<TransactionSignature>;
     createSubscription(params: CreateSubscriptionParams): Promise<[TransactionSignature, TransactionSignature]>;
     subscriptionLists(params: SubscriptionListParams): Promise<TransactionSignature>;

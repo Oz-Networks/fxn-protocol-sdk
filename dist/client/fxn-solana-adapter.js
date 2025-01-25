@@ -195,6 +195,22 @@ class SolanaAdapter {
             }
         });
     }
+    getSubscriptionRequests(dataProvider) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
+                const subscriptionRequests = yield this.program.account.subscriptionRequests.fetch(subscriptionRequestsPDA);
+                return subscriptionRequests.requests;
+            }
+            catch (error) {
+                console.error('Error fetching subscription requests:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
     // adapters/solana-adapter.ts
     setDataProviderFee(params) {
         return __awaiter(this, void 0, void 0, function* () {

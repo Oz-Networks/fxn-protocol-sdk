@@ -125,6 +125,11 @@ export interface SubscriptionStatus {
     subscription: SubscriptionAccount;
 }
 
+export interface RequestStruct {
+    subscriber_pubkey: PublicKey,
+    approved: boolean,
+}
+
 export class SolanaAdapter {
     program: Program<SubscriptionManager>;
     provider: AnchorProvider;
@@ -334,6 +339,26 @@ export class SolanaAdapter {
             return txHash;
         } catch (error) {
             console.error('Error approving subscription request:', error);
+            throw this.handleError(error);
+        }
+    }
+
+    async getSubscriptionRequests(dataProvider: PublicKey): Promise<Request[]> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const [subscriptionRequestsPDA] = await PublicKey.findProgramAddressSync(
+                [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
+                this.program.programId
+            );
+            const subscriptionRequests = await this.program.account.subscriptionRequests.fetch(
+                subscriptionRequestsPDA
+            );
+            return subscriptionRequests.requests;
+        } catch (error) {
+            console.error('Error fetching subscription requests:', error);
             throw this.handleError(error);
         }
     }
