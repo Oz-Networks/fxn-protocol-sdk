@@ -126,7 +126,7 @@ export interface SubscriptionStatus {
 }
 
 export interface RequestStruct {
-    subscriber_pubkey: PublicKey,
+    subscriberPubkey: PublicKey,
     approved: boolean,
 }
 
