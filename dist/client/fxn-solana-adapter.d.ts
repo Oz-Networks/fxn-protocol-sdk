@@ -105,7 +105,7 @@ export declare class SolanaAdapter {
     getAgentDetails(dataProvider: PublicKey): Promise<AgentParams>;
     requestSubscription(params: RequestSubscriptionParams): Promise<TransactionSignature>;
     approveSubscriptionRequest(params: ApproveSubscriptionRequestParams): Promise<TransactionSignature>;
-    getSubscriptionRequests(dataProvider: PublicKey): Promise<Request[]>;
+    getSubscriptionRequests(dataProvider: PublicKey): Promise<RequestStruct[]>;
     setDataProviderFee(params: SetDataProviderFeeParams): Promise<TransactionSignature>;
     createSubscription(params: CreateSubscriptionParams): Promise<[TransactionSignature, TransactionSignature]>;
     subscriptionLists(params: SubscriptionListParams): Promise<TransactionSignature>;

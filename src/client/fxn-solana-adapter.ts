@@ -343,7 +343,7 @@ export class SolanaAdapter {
         }
     }
 
-    async getSubscriptionRequests(dataProvider: PublicKey): Promise<Request[]> {
+    async getSubscriptionRequests(dataProvider: PublicKey): Promise<RequestStruct[]> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
         }
