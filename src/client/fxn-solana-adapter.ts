@@ -130,6 +130,11 @@ export interface RequestStruct {
     approved: boolean,
 }
 
+export interface QualityInfoParams {
+    dataProvider: PublicKey;
+    qualityScore: number;
+}
+
 export class SolanaAdapter {
     program: Program<SubscriptionManager>;
     provider: AnchorProvider;
@@ -772,6 +777,21 @@ export class SolanaAdapter {
             const subscriber = this.provider.wallet.publicKey;
             const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
 
+            // Initialize quality info if it doesn't exist
+            try {
+                await this.program.account.qualityInfo.fetch(pdas.qualityPDA);
+            } catch (e) {
+                await this.program.methods
+                    .initializeQualityInfo()
+                    .accounts({
+                        qualityInfo: pdas.qualityPDA,
+                        dataProvider: params.dataProvider,
+                        payer: subscriber,
+                        systemProgram: SystemProgram.programId,
+                    } as any)
+                    .rpc();
+            }
+
             const txHash = await this.program.methods
                 .cancelSubscription(params.qualityScore)
                 .accounts({
@@ -807,6 +827,49 @@ export class SolanaAdapter {
             return await this.program.account.qualityInfo.fetch(qualityPDA) as QualityInfoAccount;
         } catch (error) {
             console.error('Error fetching quality info:', error);
+            throw this.handleError(error);
+        }
+    }
+
+    async storeQualityInfo(params: QualityInfoParams): Promise<TransactionSignature> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+
+        try {
+            const subscriber = this.provider.wallet.publicKey;
+            const dataProvider = params.dataProvider;
+            const [qualityPDA] = PublicKey.findProgramAddressSync(
+                [Buffer.from("quality"), dataProvider.toBuffer()],
+                this.program.programId
+            );
+
+            // Initialize quality info if it doesn't exist
+            try {
+                await this.program.account.qualityInfo.fetch(qualityPDA);
+            } catch (e) {
+                await this.program.methods
+                    .initializeQualityInfo()
+                    .accounts({
+                        qualityInfo: qualityPDA,
+                        dataProvider: params.dataProvider,
+                        payer: subscriber,
+                        systemProgram: SystemProgram.programId,
+                    } as any)
+                    .rpc();
+            }
+
+            const txHash = await this.program.methods
+                .storeDataQuality(params.qualityScore)
+                .accounts({
+                    qualityInfo: qualityPDA,
+                    dataProvider: dataProvider,
+                } as any)
+                .rpc();
+
+            return txHash;
+        } catch (error) {
+            console.error('Error storing quality info:', error);
             throw this.handleError(error);
         }
     }
