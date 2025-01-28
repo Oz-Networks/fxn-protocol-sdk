@@ -896,14 +896,14 @@ export class SolanaAdapter {
                     [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
                     this.program.programId
                 );
-                const [subscribersListPDA] = PublicKey.findProgramAddressSync(
-                    [Buffer.from("subscribers"), agent.account.address.toBuffer()],
-                    this.program.programId
-                );
+                // const [subscribersListPDA] = PublicKey.findProgramAddressSync(
+                //     [Buffer.from("subscribers"), agent.account.address.toBuffer()],
+                //     this.program.programId
+                // );
                 const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
-                const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
+                // const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
 
-                const subscriberCount = subscribersListAccount.subscribers.length;
+                // const subscriberCount = subscribersListAccount.subscribers.length;
                 const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
                 return {
                     pubkey: agent.account.address,
@@ -911,7 +911,7 @@ export class SolanaAdapter {
                     description: agent.account.description,
                     restrictSubscriptions: agent.account.restrictSubscriptions,
                     capabilities: agent.account.capabilities,
-                    subscriberCount: subscriberCount,
+                    subscriberCount: 0,
                     fee: fee
                 };
             }));
