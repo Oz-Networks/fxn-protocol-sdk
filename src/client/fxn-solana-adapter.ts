@@ -1,6 +1,6 @@
 // src/adapters/solana-adapter.ts
 
-import { Program, AnchorProvider, IdlAccounts, BN, ProgramAccount } from '@coral-xyz/anchor';
+import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
 import {
     LAMPORTS_PER_SOL,
     PublicKey,
@@ -884,14 +884,7 @@ export class SolanaAdapter {
         }
     }
 
-    async getAllAgents(): Promise<ProgramAccount<{
-        address: PublicKey;
-        name: string;
-        description: string;
-        restrictSubscriptions: boolean;
-        capabilities: string[];
-    }>[]
-    > {
+    async getAllAgents(): Promise<any[]> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
         }
