@@ -892,19 +892,19 @@ export class SolanaAdapter {
             const agents = await this.program.account.agentRegistration.all();
             
             const agentProfiles = await Promise.all(agents.map(async (agent) => {
-                const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
-                    [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
-                    this.program.programId
-                );
+                // const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
+                //     [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
+                //     this.program.programId
+                // );
                 // const [subscribersListPDA] = PublicKey.findProgramAddressSync(
                 //     [Buffer.from("subscribers"), agent.account.address.toBuffer()],
                 //     this.program.programId
                 // );
-                const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
+                // const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
                 // const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
 
                 // const subscriberCount = subscribersListAccount.subscribers.length;
-                const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
+                // const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
                 return {
                     pubkey: agent.account.address,
                     name: agent.account.name,
@@ -912,7 +912,7 @@ export class SolanaAdapter {
                     restrictSubscriptions: agent.account.restrictSubscriptions,
                     capabilities: agent.account.capabilities,
                     subscriberCount: 0,
-                    fee: fee
+                    fee: 0
                 };
             }));
             
