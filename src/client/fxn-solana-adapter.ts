@@ -1,6 +1,6 @@
 // src/adapters/solana-adapter.ts
 
-import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
+import { Program, AnchorProvider, IdlAccounts, BN, ProgramAccount } from '@coral-xyz/anchor';
 import {
     LAMPORTS_PER_SOL,
     PublicKey,
@@ -884,14 +884,21 @@ export class SolanaAdapter {
         }
     }
 
-    async getAllAgents(): Promise<AgentProfile[]> {
+    async getAllAgents(): Promise<ProgramAccount<{
+        address: PublicKey;
+        name: string;
+        description: string;
+        restrictSubscriptions: boolean;
+        capabilities: string[];
+    }>[]
+    > {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
         }
         try {
             const agents = await this.program.account.agentRegistration.all();
             
-            const agentProfiles = await Promise.all(agents.map(async (agent) => {
+            // const agentProfiles = await Promise.all(agents.map(async (agent) => {
                 // const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
                 //     [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
                 //     this.program.programId
@@ -905,18 +912,18 @@ export class SolanaAdapter {
 
                 // const subscriberCount = subscribersListAccount.subscribers.length;
                 // const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
-                return {
-                    pubkey: agent.account.address,
-                    name: agent.account.name,
-                    description: agent.account.description,
-                    restrictSubscriptions: agent.account.restrictSubscriptions,
-                    capabilities: agent.account.capabilities,
-                    subscriberCount: 0,
-                    fee: 0
-                };
-            }));
+                // return {
+                //     pubkey: agent.account.address,
+                //     name: agent.account.name,
+                //     description: agent.account.description,
+                //     restrictSubscriptions: agent.account.restrictSubscriptions,
+                //     capabilities: agent.account.capabilities,
+                //     subscriberCount: 0,
+                //     fee: 0
+                // };
+            // }));
             
-            return agentProfiles;
+            return agents;
         } catch (error) {
             console.error('Error fetching agents:', error);
             throw this.handleError(error);
