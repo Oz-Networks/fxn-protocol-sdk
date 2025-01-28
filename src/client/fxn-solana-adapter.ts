@@ -120,6 +120,16 @@ export interface AgentParams {
     fee: number;
 }
 
+export interface AgentProfile {
+    pubkey: PublicKey;
+    name: string;
+    description: string;
+    restrictSubscriptions: boolean;
+    capabilities: string[];
+    subscriberCount: number;
+    fee: number;
+}
+
 export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
     subscription: SubscriptionAccount;
@@ -874,6 +884,45 @@ export class SolanaAdapter {
         }
     }
 
+    async getAllAgents(): Promise<AgentProfile[]> {
+        if (!this.provider.wallet.publicKey) {
+            throw new Error("Wallet not connected");
+        }
+        try {
+            const agents = await this.program.account.agentRegistration.all();
+            
+            const agentProfiles = await Promise.all(agents.map(async (agent) => {
+                const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
+                    [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
+                    this.program.programId
+                );
+                const [subscribersListPDA] = PublicKey.findProgramAddressSync(
+                    [Buffer.from("subscribers"), agent.account.address.toBuffer()],
+                    this.program.programId
+                );
+                const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
+                const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
+
+                const subscriberCount = subscribersListAccount.subscribers.length;
+                const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
+                return {
+                    pubkey: agent.account.address,
+                    name: agent.account.name,
+                    description: agent.account.description,
+                    restrictSubscriptions: agent.account.restrictSubscriptions,
+                    capabilities: agent.account.capabilities,
+                    subscriberCount: subscriberCount,
+                    fee: fee
+                };
+            }));
+            
+            return agentProfiles;
+        } catch (error) {
+            console.error('Error fetching agents:', error);
+            throw this.handleError(error);
+        }
+    }
+
     getProgramAddresses(dataProvider: PublicKey, subscriber: PublicKey): {
         statePDA: PublicKey;
         qualityPDA: PublicKey;
@@ -918,7 +967,7 @@ export class SolanaAdapter {
         );
 
         const [subscriptionRequestsPDA] = PublicKey.findProgramAddressSync(
-            [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
+            [Buffer.from("agent_profile_registration"), dataProvider.toBuffer()],
             this.program.programId
         );
 
