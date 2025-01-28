@@ -967,7 +967,7 @@ export class SolanaAdapter {
         );
 
         const [subscriptionRequestsPDA] = PublicKey.findProgramAddressSync(
-            [Buffer.from("agent_profile_registration"), dataProvider.toBuffer()],
+            [Buffer.from("subscription_requests"), dataProvider.toBuffer()],
             this.program.programId
         );
 
