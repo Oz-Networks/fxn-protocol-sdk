@@ -412,7 +412,7 @@ export class SolanaAdapter {
                 this.program.programId
              );
              const [agentRegistrationPDA] = await PublicKey.findProgramAddressSync(
-                [Buffer.from("agent_registration"), params.dataProvider.toBuffer()],
+                [Buffer.from("agent_profile_registration"), params.dataProvider.toBuffer()],
                 this.program.programId
              );
             // Get the state account to get the correct owner
