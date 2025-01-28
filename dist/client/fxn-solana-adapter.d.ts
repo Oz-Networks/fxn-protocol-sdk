@@ -1,4 +1,4 @@
-import { Program, AnchorProvider, IdlAccounts, BN, ProgramAccount } from '@coral-xyz/anchor';
+import { Program, AnchorProvider, IdlAccounts, BN } from '@coral-xyz/anchor';
 import { PublicKey, TransactionSignature } from '@solana/web3.js';
 import type { SubscriptionManager } from '@/types/subscription_manager';
 export interface RenewParams {
@@ -134,13 +134,7 @@ export declare class SolanaAdapter {
     getSubscriptionState(subscriptionPDA: PublicKey): Promise<SubscriptionAccount>;
     getQualityInfo(dataProvider: PublicKey): Promise<QualityInfoAccount>;
     storeQualityInfo(params: QualityInfoParams): Promise<TransactionSignature>;
-    getAllAgents(): Promise<ProgramAccount<{
-        address: PublicKey;
-        name: string;
-        description: string;
-        restrictSubscriptions: boolean;
-        capabilities: string[];
-    }>[]>;
+    getAllAgents(): Promise<any[]>;
     getProgramAddresses(dataProvider: PublicKey, subscriber: PublicKey): {
         statePDA: PublicKey;
         qualityPDA: PublicKey;

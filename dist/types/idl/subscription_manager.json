@@ -1,5 +1,5 @@
 {
-    "address": "AnPhQYFcJEPBG2JTrvaNne85rXufC1Q97bu29YaWvKDs",
+    "address": "7boH3jGFc58ji5uwZCaJJiRbDUmLkGpToCEcj9xUKrRM",
     "metadata": {
         "name": "subscription_manager",
         "version": "0.1.0",
@@ -220,6 +220,63 @@
                     "type": "u8"
                 }
             ]
+        },
+        {
+            "name": "close_subscription_account",
+            "discriminator": [
+                39,
+                224,
+                172,
+                178,
+                37,
+                9,
+                186,
+                82
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider"
+                },
+                {
+                    "name": "subscription",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": []
         },
         {
             "name": "edit_agent_data",
