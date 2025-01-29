@@ -901,12 +901,17 @@ export class SolanaAdapter {
                     this.program.programId
                 );
                 const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
-                const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
 
-                let subscriberCount = 0;
-                if (subscribersListAccount.subscribers.length > 0) {
-                    subscriberCount = subscribersListAccount.subscribers.length;
-                };
+                const subscribersListAccount = await this.provider.connection.getAccountInfo(subscribersListPDA);
+
+                let subscriberCount: number;
+                
+                if (!subscribersListAccount) {
+                    subscriberCount = 0;
+                } else {
+                    const subList = await this.program.account.subscribersList.fetch(subscribersListPDA);
+                    subscriberCount = subList.subscribers.length;
+                }
 
                 const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
                 return {
