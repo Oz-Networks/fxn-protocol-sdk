@@ -884,39 +884,43 @@ export class SolanaAdapter {
         }
     }
 
-    async getAllAgents(): Promise<any[]> {
+    async getAllAgents(): Promise<AgentProfile[]> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
         }
         try {
             const agents = await this.program.account.agentRegistration.all();
             
-            // const agentProfiles = await Promise.all(agents.map(async (agent) => {
-                // const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
-                //     [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
-                //     this.program.programId
-                // );
-                // const [subscribersListPDA] = PublicKey.findProgramAddressSync(
-                //     [Buffer.from("subscribers"), agent.account.address.toBuffer()],
-                //     this.program.programId
-                // );
-                // const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
-                // const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
+            const agentProfiles = await Promise.all(agents.map(async (agent) => {
+                const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
+                    [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
+                    this.program.programId
+                );
+                const [subscribersListPDA] = PublicKey.findProgramAddressSync(
+                    [Buffer.from("subscribers"), agent.account.address.toBuffer()],
+                    this.program.programId
+                );
+                const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
+                const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
 
-                // const subscriberCount = subscribersListAccount.subscribers.length;
-                // const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
-                // return {
-                //     pubkey: agent.account.address,
-                //     name: agent.account.name,
-                //     description: agent.account.description,
-                //     restrictSubscriptions: agent.account.restrictSubscriptions,
-                //     capabilities: agent.account.capabilities,
-                //     subscriberCount: 0,
-                //     fee: 0
-                // };
-            // }));
+                let subscriberCount = 0;
+                if (subscribersListAccount.subscribers.length > 0) {
+                    subscriberCount = subscribersListAccount.subscribers.length;
+                };
+
+                const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
+                return {
+                    pubkey: agent.account.address,
+                    name: agent.account.name,
+                    description: agent.account.description,
+                    restrictSubscriptions: agent.account.restrictSubscriptions,
+                    capabilities: agent.account.capabilities,
+                    subscriberCount: subscriberCount,
+                    fee: fee
+                };
+            }));
             
-            return agents;
+            return agentProfiles;
         } catch (error) {
             console.error('Error fetching agents:', error);
             throw this.handleError(error);
