@@ -88,13 +88,26 @@ export interface AgentParams {
     capabilities: string[];
     fee: number;
 }
+export interface AgentProfile {
+    pubkey: PublicKey;
+    name: string;
+    description: string;
+    restrictSubscriptions: boolean;
+    capabilities: string[];
+    subscriberCount: number;
+    fee: number;
+}
 export interface SubscriptionStatus {
     status: 'active' | 'expired' | 'expiring_soon';
     subscription: SubscriptionAccount;
 }
 export interface RequestStruct {
-    subscriber_pubkey: PublicKey;
+    subscriberPubkey: PublicKey;
     approved: boolean;
+}
+export interface QualityInfoParams {
+    dataProvider: PublicKey;
+    qualityScore: number;
 }
 export declare class SolanaAdapter {
     program: Program<SubscriptionManager>;
@@ -120,6 +133,8 @@ export declare class SolanaAdapter {
     cancelSubscription(params: CancelParams): Promise<TransactionSignature>;
     getSubscriptionState(subscriptionPDA: PublicKey): Promise<SubscriptionAccount>;
     getQualityInfo(dataProvider: PublicKey): Promise<QualityInfoAccount>;
+    storeQualityInfo(params: QualityInfoParams): Promise<TransactionSignature>;
+    getAllAgents(): Promise<AgentProfile[]>;
     getProgramAddresses(dataProvider: PublicKey, subscriber: PublicKey): {
         statePDA: PublicKey;
         qualityPDA: PublicKey;

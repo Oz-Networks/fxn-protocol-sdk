@@ -9,7 +9,7 @@ try {
 } catch {
     // If not initialized, initialize with defaults
     config = initializeConfig({
-        network: 'devnet',
+        network: 'mainnet',
         timeout: 30000,
         commitment: 'confirmed'
     }).getNetworkConfig();

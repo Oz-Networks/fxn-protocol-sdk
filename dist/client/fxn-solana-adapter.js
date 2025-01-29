@@ -246,7 +246,7 @@ class SolanaAdapter {
                 const subscriber = this.provider.wallet.publicKey;
                 const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
                 const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), params.dataProvider.toBuffer()], this.program.programId);
-                const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_registration"), params.dataProvider.toBuffer()], this.program.programId);
+                const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_profile_registration"), params.dataProvider.toBuffer()], this.program.programId);
                 // Get the state account to get the correct owner
                 const state = yield this.program.account.state.fetch(pdas.statePDA);
                 // Get the associated token accounts for the payment
@@ -550,6 +550,21 @@ class SolanaAdapter {
             try {
                 const subscriber = this.provider.wallet.publicKey;
                 const pdas = this.getProgramAddresses(params.dataProvider, subscriber);
+                // Initialize quality info if it doesn't exist
+                try {
+                    yield this.program.account.qualityInfo.fetch(pdas.qualityPDA);
+                }
+                catch (e) {
+                    yield this.program.methods
+                        .initializeQualityInfo()
+                        .accounts({
+                        qualityInfo: pdas.qualityPDA,
+                        dataProvider: params.dataProvider,
+                        payer: subscriber,
+                        systemProgram: web3_js_1.SystemProgram.programId,
+                    })
+                        .rpc();
+                }
                 const txHash = yield this.program.methods
                     .cancelSubscription(params.qualityScore)
                     .accounts({
@@ -586,6 +601,77 @@ class SolanaAdapter {
             }
             catch (error) {
                 console.error('Error fetching quality info:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
+    storeQualityInfo(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const subscriber = this.provider.wallet.publicKey;
+                const dataProvider = params.dataProvider;
+                const [qualityPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("quality"), dataProvider.toBuffer()], this.program.programId);
+                // Initialize quality info if it doesn't exist
+                try {
+                    yield this.program.account.qualityInfo.fetch(qualityPDA);
+                }
+                catch (e) {
+                    yield this.program.methods
+                        .initializeQualityInfo()
+                        .accounts({
+                        qualityInfo: qualityPDA,
+                        dataProvider: params.dataProvider,
+                        payer: subscriber,
+                        systemProgram: web3_js_1.SystemProgram.programId,
+                    })
+                        .rpc();
+                }
+                const txHash = yield this.program.methods
+                    .storeDataQuality(params.qualityScore)
+                    .accounts({
+                    qualityInfo: qualityPDA,
+                    dataProvider: dataProvider,
+                })
+                    .rpc();
+                return txHash;
+            }
+            catch (error) {
+                console.error('Error storing quality info:', error);
+                throw this.handleError(error);
+            }
+        });
+    }
+    getAllAgents() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.provider.wallet.publicKey) {
+                throw new Error("Wallet not connected");
+            }
+            try {
+                const agents = yield this.program.account.agentRegistration.all();
+                const agentProfiles = yield Promise.all(agents.map((agent) => __awaiter(this, void 0, void 0, function* () {
+                    const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), agent.account.address.toBuffer()], this.program.programId);
+                    const [subscribersListPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscribers"), agent.account.address.toBuffer()], this.program.programId);
+                    const feeAccount = yield this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
+                    const subscribersListAccount = yield this.program.account.subscribersList.fetch(subscribersListPDA);
+                    const subscriberCount = subscribersListAccount.subscribers.length;
+                    const fee = feeAccount.fee.toNumber() / web3_js_1.LAMPORTS_PER_SOL;
+                    return {
+                        pubkey: agent.account.address,
+                        name: agent.account.name,
+                        description: agent.account.description,
+                        restrictSubscriptions: agent.account.restrictSubscriptions,
+                        capabilities: agent.account.capabilities,
+                        subscriberCount: subscriberCount,
+                        fee: fee
+                    };
+                })));
+                return agentProfiles;
+            }
+            catch (error) {
+                console.error('Error fetching agents:', error);
                 throw this.handleError(error);
             }
         });
