@@ -199,7 +199,7 @@ export class SolanaAdapter {
                 .registerAgent(
                     params.name,
                     params.description,
-                    params.restrict_subscriptions,
+                    params.restrictSubscriptions,
                     params.capabilities,
                     fee
                 )
@@ -250,7 +250,7 @@ export class SolanaAdapter {
                 .editAgentData(
                     params.name,
                     params.description,
-                    params.restrict_subscriptions,
+                    params.restrictSubscriptions,
                     params.capabilities,
                     fee
                 )
