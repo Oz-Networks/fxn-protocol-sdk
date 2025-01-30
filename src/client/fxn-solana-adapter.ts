@@ -116,7 +116,7 @@ interface _SubscriptionListParams {
 export interface AgentParams {
     name: string;
     description: string;
-    restrict_subscriptions: boolean;
+    restrictSubscriptions: boolean;
     capabilities: string[];
     fee: number;
 }
@@ -292,7 +292,7 @@ export class SolanaAdapter {
             const agentProfile: AgentParams = {
                 name: agent.name,
                 description: agent.description,
-                restrict_subscriptions: agent.restrictSubscriptions,
+                restrictSubscriptions: agent.restrictSubscriptions,
                 capabilities: agent.capabilities,
                 fee: fee.fee.toNumber() / LAMPORTS_PER_SOL
             };
