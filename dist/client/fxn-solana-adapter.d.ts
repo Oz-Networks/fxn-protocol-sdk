@@ -134,7 +134,7 @@ export declare class SolanaAdapter {
     getSubscriptionState(subscriptionPDA: PublicKey): Promise<SubscriptionAccount>;
     getQualityInfo(dataProvider: PublicKey): Promise<QualityInfoAccount>;
     storeQualityInfo(params: QualityInfoParams): Promise<TransactionSignature>;
-    getAllAgents(): Promise<any[]>;
+    getAllAgents(): Promise<AgentProfile[]>;
     getProgramAddresses(dataProvider: PublicKey, subscriber: PublicKey): {
         statePDA: PublicKey;
         qualityPDA: PublicKey;

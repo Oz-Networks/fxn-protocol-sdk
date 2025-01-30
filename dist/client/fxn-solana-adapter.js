@@ -651,30 +651,31 @@ class SolanaAdapter {
             }
             try {
                 const agents = yield this.program.account.agentRegistration.all();
-                // const agentProfiles = await Promise.all(agents.map(async (agent) => {
-                // const [dataProviderFeePDA] = PublicKey.findProgramAddressSync(
-                //     [Buffer.from("data_provider_fee"), agent.account.address.toBuffer()],
-                //     this.program.programId
-                // );
-                // const [subscribersListPDA] = PublicKey.findProgramAddressSync(
-                //     [Buffer.from("subscribers"), agent.account.address.toBuffer()],
-                //     this.program.programId
-                // );
-                // const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
-                // const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
-                // const subscriberCount = subscribersListAccount.subscribers.length;
-                // const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
-                // return {
-                //     pubkey: agent.account.address,
-                //     name: agent.account.name,
-                //     description: agent.account.description,
-                //     restrictSubscriptions: agent.account.restrictSubscriptions,
-                //     capabilities: agent.account.capabilities,
-                //     subscriberCount: 0,
-                //     fee: 0
-                // };
-                // }));
-                return agents;
+                const agentProfiles = yield Promise.all(agents.map((agent) => __awaiter(this, void 0, void 0, function* () {
+                    const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), agent.account.address.toBuffer()], this.program.programId);
+                    const [subscribersListPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscribers"), agent.account.address.toBuffer()], this.program.programId);
+                    const feeAccount = yield this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
+                    const subscribersListAccount = yield this.provider.connection.getAccountInfo(subscribersListPDA);
+                    let subscriberCount;
+                    if (!subscribersListAccount) {
+                        subscriberCount = 0;
+                    }
+                    else {
+                        const subList = yield this.program.account.subscribersList.fetch(subscribersListPDA);
+                        subscriberCount = subList.subscribers.length;
+                    }
+                    const fee = feeAccount.fee.toNumber() / web3_js_1.LAMPORTS_PER_SOL;
+                    return {
+                        pubkey: agent.account.address,
+                        name: agent.account.name,
+                        description: agent.account.description,
+                        restrictSubscriptions: agent.account.restrictSubscriptions,
+                        capabilities: agent.account.capabilities,
+                        subscriberCount: subscriberCount,
+                        fee: fee
+                    };
+                })));
+                return agentProfiles;
             }
             catch (error) {
                 console.error('Error fetching agents:', error);
