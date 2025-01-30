@@ -1789,6 +1789,11 @@ export type SubscriptionManager = {
             "code": 6022;
             "name": "invalidSubscriber";
             "msg": "Invalid subscriber";
+        },
+        {
+            "code": 6023;
+            "name": "alreadyRequested";
+            "msg": "Already requested";
         }
     ];
     "types": [

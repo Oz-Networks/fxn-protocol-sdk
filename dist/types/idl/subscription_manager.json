@@ -1783,6 +1783,11 @@
             "code": 6022,
             "name": "InvalidSubscriber",
             "msg": "Invalid subscriber"
+        },
+        {
+            "code": 6023,
+            "name": "AlreadyRequested",
+            "msg": "Already requested"
         }
     ],
     "types": [
