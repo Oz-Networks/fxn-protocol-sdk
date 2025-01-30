@@ -779,7 +779,7 @@ export class SolanaAdapter {
         }
     }
 
-    async cancelSubscription(params: CancelParams): Promise<TransactionSignature> {
+    async cancelSubscription(params: CancelParams): Promise<TransactionSignature[]> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
         }
@@ -812,8 +812,17 @@ export class SolanaAdapter {
                     qualityInfo: pdas.qualityPDA,
                 } as any)
                 .rpc();
+            
+            const closeAccountTxHash = await this.program.methods
+                .closeSubscriptionAccount()
+                .accounts({
+                    subscriber: subscriber,
+                    dataProvider: params.dataProvider,
+                    subscription: pdas.subscriptionPDA,
+                } as any)
+                .rpc();
 
-            return txHash;
+            return [txHash, closeAccountTxHash];
         } catch (error) {
             console.error('Error in cancelSubscription:', error);
             throw this.handleError(error);
