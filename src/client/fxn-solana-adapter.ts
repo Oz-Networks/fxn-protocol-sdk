@@ -84,6 +84,7 @@ export enum SubscriptionErrorCode {
     InvalidIndex = 6020,
     AlreadyApproved = 6021,
     InvalidSubscriber = 6022,
+    AlreadyRequested = 6023,
 }
 
 export interface CreateSubscriptionParams {
@@ -905,7 +906,7 @@ export class SolanaAdapter {
                 const subscribersListAccount = await this.provider.connection.getAccountInfo(subscribersListPDA);
 
                 let subscriberCount: number;
-                
+
                 if (!subscribersListAccount) {
                     subscriberCount = 0;
                 } else {
@@ -1041,6 +1042,8 @@ export class SolanaAdapter {
                     return new Error('Already approved');
                 case SubscriptionErrorCode.InvalidSubscriber:
                     return new Error('Invalid subscriber');
+                case SubscriptionErrorCode.AlreadyRequested:
+                    return new Error('Subscription already requested');
                 default:
                     return new Error(`Unknown error: ${error.message}`);
             }

@@ -46,6 +46,7 @@ var SubscriptionErrorCode;
     SubscriptionErrorCode[SubscriptionErrorCode["InvalidIndex"] = 6020] = "InvalidIndex";
     SubscriptionErrorCode[SubscriptionErrorCode["AlreadyApproved"] = 6021] = "AlreadyApproved";
     SubscriptionErrorCode[SubscriptionErrorCode["InvalidSubscriber"] = 6022] = "InvalidSubscriber";
+    SubscriptionErrorCode[SubscriptionErrorCode["AlreadyRequested"] = 6023] = "AlreadyRequested";
 })(SubscriptionErrorCode || (exports.SubscriptionErrorCode = SubscriptionErrorCode = {}));
 class SolanaAdapter {
     constructor(provider) {
@@ -755,6 +756,8 @@ class SolanaAdapter {
                     return new Error('Already approved');
                 case SubscriptionErrorCode.InvalidSubscriber:
                     return new Error('Invalid subscriber');
+                case SubscriptionErrorCode.AlreadyRequested:
+                    return new Error('Subscription already requested');
                 default:
                     return new Error(`Unknown error: ${error.message}`);
             }

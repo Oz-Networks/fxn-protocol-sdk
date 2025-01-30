@@ -58,7 +58,8 @@ export declare enum SubscriptionErrorCode {
     TooManySubscribers = 6019,
     InvalidIndex = 6020,
     AlreadyApproved = 6021,
-    InvalidSubscriber = 6022
+    InvalidSubscriber = 6022,
+    AlreadyRequested = 6023
 }
 export interface CreateSubscriptionParams {
     dataProvider: PublicKey;
