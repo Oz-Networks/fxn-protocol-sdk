@@ -84,6 +84,7 @@ export enum SubscriptionErrorCode {
     InvalidIndex = 6020,
     AlreadyApproved = 6021,
     InvalidSubscriber = 6022,
+    AlreadyRequested = 6023,
 }
 
 export interface CreateSubscriptionParams {
@@ -115,7 +116,7 @@ interface _SubscriptionListParams {
 export interface AgentParams {
     name: string;
     description: string;
-    restrict_subscriptions: boolean;
+    restrictSubscriptions: boolean;
     capabilities: string[];
     fee: number;
 }
@@ -198,7 +199,7 @@ export class SolanaAdapter {
                 .registerAgent(
                     params.name,
                     params.description,
-                    params.restrict_subscriptions,
+                    params.restrictSubscriptions,
                     params.capabilities,
                     fee
                 )
@@ -249,7 +250,7 @@ export class SolanaAdapter {
                 .editAgentData(
                     params.name,
                     params.description,
-                    params.restrict_subscriptions,
+                    params.restrictSubscriptions,
                     params.capabilities,
                     fee
                 )
@@ -291,7 +292,7 @@ export class SolanaAdapter {
             const agentProfile: AgentParams = {
                 name: agent.name,
                 description: agent.description,
-                restrict_subscriptions: agent.restrictSubscriptions,
+                restrictSubscriptions: agent.restrictSubscriptions,
                 capabilities: agent.capabilities,
                 fee: fee.fee.toNumber() / LAMPORTS_PER_SOL
             };
@@ -778,7 +779,7 @@ export class SolanaAdapter {
         }
     }
 
-    async cancelSubscription(params: CancelParams): Promise<TransactionSignature> {
+    async cancelSubscription(params: CancelParams): Promise<TransactionSignature[]> {
         if (!this.provider.wallet.publicKey) {
             throw new Error("Wallet not connected");
         }
@@ -811,8 +812,17 @@ export class SolanaAdapter {
                     qualityInfo: pdas.qualityPDA,
                 } as any)
                 .rpc();
+            
+            const closeAccountTxHash = await this.program.methods
+                .closeSubscriptionAccount()
+                .accounts({
+                    subscriber: subscriber,
+                    dataProvider: params.dataProvider,
+                    subscription: pdas.subscriptionPDA,
+                } as any)
+                .rpc();
 
-            return txHash;
+            return [txHash, closeAccountTxHash];
         } catch (error) {
             console.error('Error in cancelSubscription:', error);
             throw this.handleError(error);
@@ -901,9 +911,18 @@ export class SolanaAdapter {
                     this.program.programId
                 );
                 const feeAccount = await this.program.account.dataProviderFee.fetch(dataProviderFeePDA);
-                const subscribersListAccount = await this.program.account.subscribersList.fetch(subscribersListPDA);
 
-                const subscriberCount = subscribersListAccount.subscribers.length;
+                const subscribersListAccount = await this.provider.connection.getAccountInfo(subscribersListPDA);
+
+                let subscriberCount: number;
+
+                if (!subscribersListAccount) {
+                    subscriberCount = 0;
+                } else {
+                    const subList = await this.program.account.subscribersList.fetch(subscribersListPDA);
+                    subscriberCount = subList.subscribers.length;
+                }
+
                 const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
                 return {
                     pubkey: agent.account.address,
@@ -1032,6 +1051,8 @@ export class SolanaAdapter {
                     return new Error('Already approved');
                 case SubscriptionErrorCode.InvalidSubscriber:
                     return new Error('Invalid subscriber');
+                case SubscriptionErrorCode.AlreadyRequested:
+                    return new Error('Subscription already requested');
                 default:
                     return new Error(`Unknown error: ${error.message}`);
             }

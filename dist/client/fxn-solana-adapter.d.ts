@@ -58,7 +58,8 @@ export declare enum SubscriptionErrorCode {
     TooManySubscribers = 6019,
     InvalidIndex = 6020,
     AlreadyApproved = 6021,
-    InvalidSubscriber = 6022
+    InvalidSubscriber = 6022,
+    AlreadyRequested = 6023
 }
 export interface CreateSubscriptionParams {
     dataProvider: PublicKey;
@@ -84,8 +85,17 @@ interface _SubscriptionListParams {
 export interface AgentParams {
     name: string;
     description: string;
-    restrict_subscriptions: boolean;
+    restrictSubscriptions: boolean;
     capabilities: string[];
+    fee: number;
+}
+export interface AgentProfile {
+    pubkey: PublicKey;
+    name: string;
+    description: string;
+    restrictSubscriptions: boolean;
+    capabilities: string[];
+    subscriberCount: number;
     fee: number;
 }
 export interface SubscriptionStatus {
@@ -93,8 +103,12 @@ export interface SubscriptionStatus {
     subscription: SubscriptionAccount;
 }
 export interface RequestStruct {
-    subscriber_pubkey: PublicKey;
+    subscriberPubkey: PublicKey;
     approved: boolean;
+}
+export interface QualityInfoParams {
+    dataProvider: PublicKey;
+    qualityScore: number;
 }
 export declare class SolanaAdapter {
     program: Program<SubscriptionManager>;
@@ -117,9 +131,11 @@ export declare class SolanaAdapter {
     getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]>;
     getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionDetails[]>;
     renewSubscription(params: RenewParams): Promise<TransactionSignature>;
-    cancelSubscription(params: CancelParams): Promise<TransactionSignature>;
+    cancelSubscription(params: CancelParams): Promise<TransactionSignature[]>;
     getSubscriptionState(subscriptionPDA: PublicKey): Promise<SubscriptionAccount>;
     getQualityInfo(dataProvider: PublicKey): Promise<QualityInfoAccount>;
+    storeQualityInfo(params: QualityInfoParams): Promise<TransactionSignature>;
+    getAllAgents(): Promise<AgentProfile[]>;
     getProgramAddresses(dataProvider: PublicKey, subscriber: PublicKey): {
         statePDA: PublicKey;
         qualityPDA: PublicKey;

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/subscription_manager.json`.
  */
 export type SubscriptionManager = {
-    "address": "AnPhQYFcJEPBG2JTrvaNne85rXufC1Q97bu29YaWvKDs";
+    "address": "7grtCnm6TmUiB4a6b4roSiVzZCQ5agSz9aj8aYJiWpKE";
     "metadata": {
         "name": "subscriptionManager";
         "version": "0.1.0";
@@ -226,6 +226,63 @@ export type SubscriptionManager = {
                     "type": "u8";
                 }
             ];
+        },
+        {
+            "name": "closeSubscriptionAccount";
+            "discriminator": [
+                39,
+                224,
+                172,
+                178,
+                37,
+                9,
+                186,
+                82
+            ];
+            "accounts": [
+                {
+                    "name": "subscriber";
+                    "writable": true;
+                    "signer": true;
+                },
+                {
+                    "name": "dataProvider";
+                },
+                {
+                    "name": "subscription";
+                    "writable": true;
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const";
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ];
+                            },
+                            {
+                                "kind": "account";
+                                "path": "subscriber";
+                            },
+                            {
+                                "kind": "account";
+                                "path": "dataProvider";
+                            }
+                        ];
+                    };
+                }
+            ];
+            "args": [];
         },
         {
             "name": "editAgentData";
@@ -593,7 +650,7 @@ export type SubscriptionManager = {
                                     97,
                                     116,
                                     101,
-                                    32,
+                                    95,
                                     115,
                                     116,
                                     111,
@@ -607,12 +664,12 @@ export type SubscriptionManager = {
                     };
                 },
                 {
-                    "name": "owner";
+                    "name": "admin";
                     "writable": true;
                     "signer": true;
                 },
                 {
-                    "name": "nftProgram";
+                    "name": "owner";
                 },
                 {
                     "name": "paymentSplToken";
@@ -622,7 +679,16 @@ export type SubscriptionManager = {
                     "address": "11111111111111111111111111111111";
                 }
             ];
-            "args": [];
+            "args": [
+                {
+                    "name": "collectorFee";
+                    "type": "u64";
+                },
+                {
+                    "name": "registrationFee";
+                    "type": "u64";
+                }
+            ];
         },
         {
             "name": "initializeQualityInfo";
@@ -1154,7 +1220,7 @@ export type SubscriptionManager = {
                     "writable": true;
                 },
                 {
-                    "name": "owner";
+                    "name": "admin";
                     "signer": true;
                 }
             ];
@@ -1247,7 +1313,36 @@ export type SubscriptionManager = {
                     "writable": true;
                 },
                 {
-                    "name": "owner";
+                    "name": "admin";
+                    "signer": true;
+                }
+            ];
+            "args": [
+                {
+                    "name": "newFee";
+                    "type": "u64";
+                }
+            ];
+        },
+        {
+            "name": "setRegistrationFee";
+            "discriminator": [
+                156,
+                222,
+                72,
+                107,
+                152,
+                183,
+                168,
+                199
+            ];
+            "accounts": [
+                {
+                    "name": "state";
+                    "writable": true;
+                },
+                {
+                    "name": "admin";
                     "signer": true;
                 }
             ];
@@ -1562,6 +1657,19 @@ export type SubscriptionManager = {
                 33,
                 124,
                 150
+            ];
+        },
+        {
+            "name": "registrationFeeUpdatedEvent";
+            "discriminator": [
+                68,
+                109,
+                96,
+                250,
+                65,
+                168,
+                12,
+                72
             ];
         },
         {
@@ -1886,6 +1994,18 @@ export type SubscriptionManager = {
             };
         },
         {
+            "name": "registrationFeeUpdatedEvent";
+            "type": {
+                "kind": "struct";
+                "fields": [
+                    {
+                        "name": "newRegistrationFee";
+                        "type": "u64";
+                    }
+                ];
+            };
+        },
+        {
             "name": "requests";
             "type": {
                 "kind": "struct";
@@ -1911,7 +2031,7 @@ export type SubscriptionManager = {
                         "type": "pubkey";
                     },
                     {
-                        "name": "nftProgramId";
+                        "name": "admin";
                         "type": "pubkey";
                     },
                     {
@@ -1924,6 +2044,10 @@ export type SubscriptionManager = {
                     },
                     {
                         "name": "collectorFee";
+                        "type": "u64";
+                    },
+                    {
+                        "name": "registrationFee";
                         "type": "u64";
                     }
                 ];

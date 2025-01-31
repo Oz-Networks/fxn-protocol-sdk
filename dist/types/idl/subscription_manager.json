@@ -1,5 +1,5 @@
 {
-    "address": "AnPhQYFcJEPBG2JTrvaNne85rXufC1Q97bu29YaWvKDs",
+    "address": "7grtCnm6TmUiB4a6b4roSiVzZCQ5agSz9aj8aYJiWpKE",
     "metadata": {
         "name": "subscription_manager",
         "version": "0.1.0",
@@ -220,6 +220,63 @@
                     "type": "u8"
                 }
             ]
+        },
+        {
+            "name": "close_subscription_account",
+            "discriminator": [
+                39,
+                224,
+                172,
+                178,
+                37,
+                9,
+                186,
+                82
+            ],
+            "accounts": [
+                {
+                    "name": "subscriber",
+                    "writable": true,
+                    "signer": true
+                },
+                {
+                    "name": "data_provider"
+                },
+                {
+                    "name": "subscription",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    115,
+                                    117,
+                                    98,
+                                    115,
+                                    99,
+                                    114,
+                                    105,
+                                    112,
+                                    116,
+                                    105,
+                                    111,
+                                    110
+                                ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "subscriber"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "data_provider"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "args": []
         },
         {
             "name": "edit_agent_data",
@@ -587,7 +644,7 @@
                                     97,
                                     116,
                                     101,
-                                    32,
+                                    95,
                                     115,
                                     116,
                                     111,
@@ -601,12 +658,12 @@
                     }
                 },
                 {
-                    "name": "owner",
+                    "name": "admin",
                     "writable": true,
                     "signer": true
                 },
                 {
-                    "name": "nft_program"
+                    "name": "owner"
                 },
                 {
                     "name": "payment_spl_token"
@@ -616,7 +673,16 @@
                     "address": "11111111111111111111111111111111"
                 }
             ],
-            "args": []
+            "args": [
+                {
+                    "name": "collector_fee",
+                    "type": "u64"
+                },
+                {
+                    "name": "registration_fee",
+                    "type": "u64"
+                }
+            ]
         },
         {
             "name": "initialize_quality_info",
@@ -1148,7 +1214,7 @@
                     "writable": true
                 },
                 {
-                    "name": "owner",
+                    "name": "admin",
                     "signer": true
                 }
             ],
@@ -1241,7 +1307,36 @@
                     "writable": true
                 },
                 {
-                    "name": "owner",
+                    "name": "admin",
+                    "signer": true
+                }
+            ],
+            "args": [
+                {
+                    "name": "new_fee",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "set_registration_fee",
+            "discriminator": [
+                156,
+                222,
+                72,
+                107,
+                152,
+                183,
+                168,
+                199
+            ],
+            "accounts": [
+                {
+                    "name": "state",
+                    "writable": true
+                },
+                {
+                    "name": "admin",
                     "signer": true
                 }
             ],
@@ -1556,6 +1651,19 @@
                 33,
                 124,
                 150
+            ]
+        },
+        {
+            "name": "RegistrationFeeUpdatedEvent",
+            "discriminator": [
+                68,
+                109,
+                96,
+                250,
+                65,
+                168,
+                12,
+                72
             ]
         },
         {
@@ -1880,6 +1988,18 @@
             }
         },
         {
+            "name": "RegistrationFeeUpdatedEvent",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "new_registration_fee",
+                        "type": "u64"
+                    }
+                ]
+            }
+        },
+        {
             "name": "Requests",
             "type": {
                 "kind": "struct",
@@ -1905,7 +2025,7 @@
                         "type": "pubkey"
                     },
                     {
-                        "name": "nft_program_id",
+                        "name": "admin",
                         "type": "pubkey"
                     },
                     {
@@ -1918,6 +2038,10 @@
                     },
                     {
                         "name": "collector_fee",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "registration_fee",
                         "type": "u64"
                     }
                 ]
