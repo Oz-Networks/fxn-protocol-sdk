@@ -25,7 +25,7 @@ try {
 catch (_a) {
     // If not initialized, initialize with defaults
     exports.config = config = (0, manager_1.initializeConfig)({
-        network: 'devnet',
+        network: 'mainnet',
         timeout: 30000,
         commitment: 'confirmed'
     }).getNetworkConfig();

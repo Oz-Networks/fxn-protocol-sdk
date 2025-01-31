@@ -71,7 +71,7 @@ class SolanaAdapter {
                 const dp_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, dataProvider);
                 const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
                 const txHash = yield this.program.methods
-                    .registerAgent(params.name, params.description, params.restrict_subscriptions, params.capabilities, fee)
+                    .registerAgent(params.name, params.description, params.restrictSubscriptions, params.capabilities, fee)
                     .accounts({
                     agentRegistration: agentRegistrationPDA,
                     subscriptionRequests: subscriptionRequestsPDA,
@@ -104,7 +104,7 @@ class SolanaAdapter {
                 const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
                 const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
                 const txHash = yield this.program.methods
-                    .editAgentData(params.name, params.description, params.restrict_subscriptions, params.capabilities, fee)
+                    .editAgentData(params.name, params.description, params.restrictSubscriptions, params.capabilities, fee)
                     .accounts({
                     agentRegistration: agentRegistrationPDA,
                     subscriptionRequests: subscriptionRequestsPDA,
@@ -134,7 +134,7 @@ class SolanaAdapter {
                 const agentProfile = {
                     name: agent.name,
                     description: agent.description,
-                    restrict_subscriptions: agent.restrictSubscriptions,
+                    restrictSubscriptions: agent.restrictSubscriptions,
                     capabilities: agent.capabilities,
                     fee: fee.fee.toNumber() / web3_js_1.LAMPORTS_PER_SOL
                 };
@@ -575,7 +575,15 @@ class SolanaAdapter {
                     qualityInfo: pdas.qualityPDA,
                 })
                     .rpc();
-                return txHash;
+                const closeAccountTxHash = yield this.program.methods
+                    .closeSubscriptionAccount()
+                    .accounts({
+                    subscriber: subscriber,
+                    dataProvider: params.dataProvider,
+                    subscription: pdas.subscriptionPDA,
+                })
+                    .rpc();
+                return [txHash, closeAccountTxHash];
             }
             catch (error) {
                 console.error('Error in cancelSubscription:', error);

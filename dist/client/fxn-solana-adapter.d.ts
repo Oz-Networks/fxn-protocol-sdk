@@ -85,7 +85,7 @@ interface _SubscriptionListParams {
 export interface AgentParams {
     name: string;
     description: string;
-    restrict_subscriptions: boolean;
+    restrictSubscriptions: boolean;
     capabilities: string[];
     fee: number;
 }
@@ -131,7 +131,7 @@ export declare class SolanaAdapter {
     getSubscriptionsForProvider(providerPublicKey: PublicKey): Promise<SubscriberDetails[]>;
     getAllSubscriptionsForUser(userPublicKey: PublicKey): Promise<SubscriptionDetails[]>;
     renewSubscription(params: RenewParams): Promise<TransactionSignature>;
-    cancelSubscription(params: CancelParams): Promise<TransactionSignature>;
+    cancelSubscription(params: CancelParams): Promise<TransactionSignature[]>;
     getSubscriptionState(subscriptionPDA: PublicKey): Promise<SubscriptionAccount>;
     getQualityInfo(dataProvider: PublicKey): Promise<QualityInfoAccount>;
     storeQualityInfo(params: QualityInfoParams): Promise<TransactionSignature>;

@@ -1,5 +1,5 @@
 {
-  "address": "7boH3jGFc58ji5uwZCaJJiRbDUmLkGpToCEcj9xUKrRM",
+  "address": "7grtCnm6TmUiB4a6b4roSiVzZCQ5agSz9aj8aYJiWpKE",
   "metadata": {
     "name": "subscription_manager",
     "version": "0.1.0",
@@ -644,7 +644,7 @@
                   97,
                   116,
                   101,
-                  32,
+                  95,
                   115,
                   116,
                   111,
@@ -658,12 +658,12 @@
           }
         },
         {
-          "name": "owner",
+          "name": "admin",
           "writable": true,
           "signer": true
         },
         {
-          "name": "nft_program"
+          "name": "owner"
         },
         {
           "name": "payment_spl_token"
@@ -673,7 +673,16 @@
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "collector_fee",
+          "type": "u64"
+        },
+        {
+          "name": "registration_fee",
+          "type": "u64"
+        }
+      ]
     },
     {
       "name": "initialize_quality_info",
@@ -1205,7 +1214,7 @@
           "writable": true
         },
         {
-          "name": "owner",
+          "name": "admin",
           "signer": true
         }
       ],
@@ -1298,7 +1307,36 @@
           "writable": true
         },
         {
-          "name": "owner",
+          "name": "admin",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_registration_fee",
+      "discriminator": [
+        156,
+        222,
+        72,
+        107,
+        152,
+        183,
+        168,
+        199
+      ],
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true
+        },
+        {
+          "name": "admin",
           "signer": true
         }
       ],
@@ -1616,6 +1654,19 @@
       ]
     },
     {
+      "name": "RegistrationFeeUpdatedEvent",
+      "discriminator": [
+        68,
+        109,
+        96,
+        250,
+        65,
+        168,
+        12,
+        72
+      ]
+    },
+    {
       "name": "SubscriptionCancelledEvent",
       "discriminator": [
         10,
@@ -1783,11 +1834,6 @@
       "code": 6022,
       "name": "InvalidSubscriber",
       "msg": "Invalid subscriber"
-    },
-    {
-      "code": 6023,
-      "name": "AlreadyRequested",
-      "msg": "Already requested"
     }
   ],
   "types": [
@@ -1942,6 +1988,18 @@
       }
     },
     {
+      "name": "RegistrationFeeUpdatedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_registration_fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "Requests",
       "type": {
         "kind": "struct",
@@ -1967,7 +2025,7 @@
             "type": "pubkey"
           },
           {
-            "name": "nft_program_id",
+            "name": "admin",
             "type": "pubkey"
           },
           {
@@ -1980,6 +2038,10 @@
           },
           {
             "name": "collector_fee",
+            "type": "u64"
+          },
+          {
+            "name": "registration_fee",
             "type": "u64"
           }
         ]
