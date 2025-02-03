@@ -5,7 +5,7 @@ export const NETWORK_CONFIGS: Record<NetworkType, NetworkConfig> = {
         subscriptionManagerAddress: '7grtCnm6TmUiB4a6b4roSiVzZCQ5agSz9aj8aYJiWpKE',
         nftTokenAddress: '3sH789kj7yAtmuJKJQqKnxdWd9Q28qfN1DzkeFZd7ty7',
         fxnMintAddress: '92cRC6kV5D7TiHX1j56AbkPbffo9jwcXxSDQZ8Mopump',
-        rpcEndpoint: 'https://terza-4if3lo-fast-mainnet.helius-rpc.com',
+        rpcEndpoint: 'https://api.mainnet-beta.solana.com',
         wsEndpoint: 'wss://api.mainnet-beta.solana.com'
     },
     testnet: {
