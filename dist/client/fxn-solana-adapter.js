@@ -66,10 +66,10 @@ class SolanaAdapter {
                 const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_profile_registration"), dataProvider.toBuffer()], this.program.programId);
                 const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
                 const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
-                const [statePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("state storage")], this.program.programId);
+                const [statePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("state_storage")], this.program.programId);
                 const fxnMintAddress = new web3_js_1.PublicKey(index_1.config.fxnMintAddress);
                 const dp_payment_ata = yield (0, spl_token_1.getAssociatedTokenAddress)(fxnMintAddress, dataProvider);
-                const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
+                const fee = new anchor_1.BN(params.fee * 1000000);
                 const txHash = yield this.program.methods
                     .registerAgent(params.name, params.description, params.restrictSubscriptions, params.capabilities, fee)
                     .accounts({
@@ -102,7 +102,7 @@ class SolanaAdapter {
                 const [agentRegistrationPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("agent_profile_registration"), dataProvider.toBuffer()], this.program.programId);
                 const [subscriptionRequestsPDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("subscription_requests"), dataProvider.toBuffer()], this.program.programId);
                 const [dataProviderFeePDA] = yield web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
-                const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
+                const fee = new anchor_1.BN(params.fee * 1000000);
                 const txHash = yield this.program.methods
                     .editAgentData(params.name, params.description, params.restrictSubscriptions, params.capabilities, fee)
                     .accounts({
@@ -136,7 +136,7 @@ class SolanaAdapter {
                     description: agent.description,
                     restrictSubscriptions: agent.restrictSubscriptions,
                     capabilities: agent.capabilities,
-                    fee: fee.fee.toNumber() / web3_js_1.LAMPORTS_PER_SOL
+                    fee: fee.fee.toNumber() / 1000000
                 };
                 return agentProfile;
             }
@@ -221,7 +221,7 @@ class SolanaAdapter {
             try {
                 const dataProvider = this.provider.wallet.publicKey;
                 const [dataProviderFeePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("data_provider_fee"), dataProvider.toBuffer()], this.program.programId);
-                const fee = new anchor_1.BN(params.fee * web3_js_1.LAMPORTS_PER_SOL);
+                const fee = new anchor_1.BN(params.fee * 1000000);
                 const txHash = yield this.program.methods
                     .setDataProviderFee(fee)
                     .accounts({
@@ -673,7 +673,7 @@ class SolanaAdapter {
                         const subList = yield this.program.account.subscribersList.fetch(subscribersListPDA);
                         subscriberCount = subList.subscribers.length;
                     }
-                    const fee = feeAccount.fee.toNumber() / web3_js_1.LAMPORTS_PER_SOL;
+                    const fee = feeAccount.fee.toNumber() / 1000000;
                     return {
                         pubkey: agent.account.address,
                         name: agent.account.name,
@@ -693,7 +693,7 @@ class SolanaAdapter {
         });
     }
     getProgramAddresses(dataProvider, subscriber) {
-        const [statePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("state storage")], this.program.programId);
+        const [statePDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("state_storage")], this.program.programId);
         const [qualityPDA] = web3_js_1.PublicKey.findProgramAddressSync([Buffer.from("quality"), dataProvider.toBuffer()], this.program.programId);
         const [subscriptionPDA] = web3_js_1.PublicKey.findProgramAddressSync([
             Buffer.from("subscription"),
