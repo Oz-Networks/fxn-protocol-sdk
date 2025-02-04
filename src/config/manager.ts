@@ -28,7 +28,7 @@ export class ConfigurationManager {
         if (!ConfigurationManager.instance) {
             // Fallback to devnet config for backward compatibility
             return ConfigurationManager.initialize({
-                network: 'devnet',
+                network: 'mainnet',
                 timeout: 30000,
                 commitment: 'confirmed'
             });
