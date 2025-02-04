@@ -182,7 +182,7 @@ export class SolanaAdapter {
                this.program.programId
             );
             const [statePDA] = PublicKey.findProgramAddressSync(
-                [Buffer.from("state storage")],
+                [Buffer.from("state_storage")],
                 this.program.programId
             );
 
@@ -952,7 +952,7 @@ export class SolanaAdapter {
         subscriptionRequestsPDA: PublicKey;
     } {
         const [statePDA] = PublicKey.findProgramAddressSync(
-            [Buffer.from("state storage")],
+            [Buffer.from("state_storage")],
             this.program.programId
         );
 
