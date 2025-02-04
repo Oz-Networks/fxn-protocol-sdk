@@ -193,7 +193,7 @@ export class SolanaAdapter {
                 dataProvider,
             );
 
-            const fee = new BN(params.fee * LAMPORTS_PER_SOL);
+            const fee = new BN(params.fee * 1000000);
 
             const txHash = await this.program.methods
                 .registerAgent(
@@ -244,7 +244,7 @@ export class SolanaAdapter {
                this.program.programId
             );
 
-             const fee = new BN(params.fee * LAMPORTS_PER_SOL);
+             const fee = new BN(params.fee * 1000000);
 
              const txHash = await this.program.methods
                 .editAgentData(
@@ -294,7 +294,7 @@ export class SolanaAdapter {
                 description: agent.description,
                 restrictSubscriptions: agent.restrictSubscriptions,
                 capabilities: agent.capabilities,
-                fee: fee.fee.toNumber() / LAMPORTS_PER_SOL
+                fee: fee.fee.toNumber() / 1000000
             };
 
             return agentProfile;
@@ -392,7 +392,7 @@ export class SolanaAdapter {
                 this.program.programId
             );
  
-            const fee = new BN(params.fee * LAMPORTS_PER_SOL);
+            const fee = new BN(params.fee * 1000000);
 
             const txHash = await this.program.methods
                 .setDataProviderFee(fee)
@@ -923,7 +923,7 @@ export class SolanaAdapter {
                     subscriberCount = subList.subscribers.length;
                 }
 
-                const fee = feeAccount.fee.toNumber() / LAMPORTS_PER_SOL;
+                const fee = feeAccount.fee.toNumber() / 1000000;
                 return {
                     pubkey: agent.account.address,
                     name: agent.account.name,
