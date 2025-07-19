@@ -1,5 +1,5 @@
 # requirements.txt
-pyautogen[vision]
+ag2[vision]
 solana
 base58
 requests
